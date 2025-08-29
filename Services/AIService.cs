@@ -15,7 +15,6 @@ namespace AcupointQuizMaster.Services
     /// </summary>
     public class AIService : IDisposable
     {
-        private const string DefaultApiKey = "sk-9d45aacc4d2e485eb5c98972c11beb1f";
         private const string DefaultApiUrl = "https://api.deepseek.com/v1/chat/completions";
         private const string DefaultModelName = "deepseek-chat";
         
@@ -29,8 +28,8 @@ namespace AcupointQuizMaster.Services
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromSeconds(45);
             
-            // 初始化默认设置
-            _apiKey = Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY") ?? DefaultApiKey;
+            // 初始化默认设置 - API密钥必须由用户在设置中配置
+            _apiKey = Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY") ?? string.Empty;
             _apiUrl = DefaultApiUrl;
             _modelName = DefaultModelName;
         }

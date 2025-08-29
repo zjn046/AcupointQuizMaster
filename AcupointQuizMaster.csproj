@@ -12,11 +12,12 @@
     <TrimMode>none</TrimMode>
     <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
-    <AndroidKeyStore>true</AndroidKeyStore>
-    <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore>
-    <AndroidSigningKeyAlias>mykey</AndroidSigningKeyAlias>
-    <AndroidSigningKeyPass>123456</AndroidSigningKeyPass>
-    <AndroidSigningStorePass>123456</AndroidSigningStorePass>
+    <!-- Android签名配置已移除，发布时需要手动配置 -->
+    <!-- <AndroidKeyStore>true</AndroidKeyStore> -->
+    <!-- <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore> -->
+    <!-- <AndroidSigningKeyAlias>mykey</AndroidSigningKeyAlias> -->
+    <!-- <AndroidSigningKeyPass>密码</AndroidSigningKeyPass> -->
+    <!-- <AndroidSigningStorePass>密码</AndroidSigningStorePass> -->
   </PropertyGroup>
   
   <ItemGroup>

@@ -330,5 +330,26 @@ proguard/
 *.jks
 *.keystore
 
+# Configuration files with sensitive data
+config.json
+app_config.json
+appsettings.json
+local_settings.json
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# API keys and secrets
+api_keys.txt
+secrets.txt
+keys/
+
+# Backup files that may contain sensitive data
+*.bak
+*.backup
+*.backup[0-9]*
+
 # Sensitive information
 nul
