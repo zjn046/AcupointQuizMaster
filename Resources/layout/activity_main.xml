@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp"
+        android:gravity="center">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="穴位测验大师"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="32dp"
+            android:textColor="#2196F3" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="欢迎使用穴位测验大师"
+            android:textSize="16sp"
+            android:padding="16dp"
+            android:gravity="center"
+            android:background="#F5F5F5"
+            android:layout_marginBottom="32dp" />
+
+        <LinearLayout
+            android:id="@+id/currentItemLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="32dp"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="当前穴位："
+                android:textSize="16sp"
+                android:layout_gravity="center_vertical"
+                android:minWidth="100dp" />
+
+            <EditText
+                android:id="@+id/currentItemText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="尚未开始"
+                android:enabled="false"
+                android:textSize="16sp"
+                android:background="#EEEEEE"
+                android:padding="12dp" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center">
+
+            <!-- 主要功能按钮 -->
+            <LinearLayout
+                android:id="@+id/mainButtonsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <Button
+                    android:id="@+id/drawButton"
+                    android:layout_width="280dp"
+                    android:layout_height="60dp"
+                    android:text="抽穴位"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="#2196F3"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/aiEvaluationButton"
+                    android:layout_width="280dp"
+                    android:layout_height="60dp"
+                    android:text="穴位测评"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="#FF9800"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/helpButton"
+                    android:layout_width="280dp"
+                    android:layout_height="60dp"
+                    android:text="帮助"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="#795548"
+                    android:textColor="@android:color/white" />
+
+                <Button
+                    android:id="@+id/settingsButton"
+                    android:layout_width="280dp"
+                    android:layout_height="60dp"
+                    android:text="设置"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="#9E9E9E"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
+
+            <!-- 测验过程按钮 (初始隐藏) -->
+            <LinearLayout
+                android:id="@+id/quizButtonsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/startButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="开始抽取"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="@android:color/white"
+                    android:enabled="false" />
+
+                <Button
+                    android:id="@+id/correctButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="答对"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#8BC34A"
+                    android:textColor="@android:color/white"
+                    android:enabled="false" />
+
+                <Button
+                    android:id="@+id/wrongButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="答错"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#F44336"
+                    android:textColor="@android:color/white"
+                    android:enabled="false" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/detailButtonsLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_marginTop="8dp"
+                android:visibility="gone">
+
+                <Button
+                    android:id="@+id/viewDetailButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="查看穴位信息"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#9C27B0"
+                    android:textColor="@android:color/white"
+                    android:enabled="false" />
+
+                <Button
+                    android:id="@+id/resultButton"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="查看结果"
+                    android:layout_margin="4dp"
+                    android:backgroundTint="#607D8B"
+                    android:textColor="@android:color/white"
+                    android:enabled="false"
+                    android:visibility="gone" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</ScrollView>
