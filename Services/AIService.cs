@@ -28,10 +28,10 @@ namespace AcupointQuizMaster.Services
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromSeconds(45);
             
-            // 初始化默认设置 - API密钥必须由用户在设置中配置
-            _apiKey = Environment.GetEnvironmentVariable("DEEPSEEK_API_KEY") ?? string.Empty;
-            _apiUrl = DefaultApiUrl;
-            _modelName = DefaultModelName;
+            // 初始化默认设置 - 使用DefaultApiConfig提供的默认配置，环境变量优先
+            _apiKey = DefaultApiConfig.GetApiKey();
+            _apiUrl = DefaultApiConfig.GetApiUrl();
+            _modelName = DefaultApiConfig.GetModelName();
         }
 
         /// <summary>

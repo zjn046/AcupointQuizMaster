@@ -8,13 +8,22 @@ namespace AcupointQuizMaster.Models
     public class AppSettings
     {
         [JsonProperty("api_url")]
-        public string ApiUrl { get; set; } = "https://api.openai.com/v1/chat/completions";
+        public string ApiUrl { get; set; } = string.Empty;
 
         [JsonProperty("api_key")]
         public string ApiKey { get; set; } = string.Empty;
 
         [JsonProperty("model_name")]
-        public string ModelName { get; set; } = "gpt-3.5-turbo";
+        public string ModelName { get; set; } = string.Empty;
+
+        [JsonProperty("max_tokens")]
+        public int MaxTokens { get; set; } = 1000;
+
+        [JsonProperty("temperature")]
+        public float Temperature { get; set; } = 0.7f;
+
+        [JsonProperty("top_p")]
+        public float TopP { get; set; } = 0.9f;
 
         [JsonProperty("version")]
         public string Version { get; set; } = "1.0";
@@ -25,7 +34,7 @@ namespace AcupointQuizMaster.Models
         /// <returns>默认设置实例</returns>
         public static AppSettings Default()
         {
-            return new AppSettings();
+            return DefaultApiConfig.GetDefaultSettings();
         }
 
         /// <summary>
@@ -50,6 +59,9 @@ namespace AcupointQuizMaster.Models
                 ApiUrl = this.ApiUrl,
                 ApiKey = this.ApiKey,
                 ModelName = this.ModelName,
+                MaxTokens = this.MaxTokens,
+                Temperature = this.Temperature,
+                TopP = this.TopP,
                 Version = this.Version
             };
         }
