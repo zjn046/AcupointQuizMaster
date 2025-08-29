@@ -569,6 +569,8 @@ public class MainActivity : Activity
         var input = new EditText(this);
         input.InputType = Android.Text.InputTypes.ClassNumber;
         input.Hint = $"请输入要抽取的穴位数量（剩余可抽：{maxQuantity}）";
+        input.Text = maxQuantity.ToString(); // 默认填入最大可抽数量
+        input.SelectAll(); // 选中所有文本，方便用户修改
         
         var builder = new AlertDialog.Builder(this);
         builder.SetTitle("抽取数量");

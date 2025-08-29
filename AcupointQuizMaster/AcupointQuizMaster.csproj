@@ -6,13 +6,13 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationId>com.acupoint.quizmaster</ApplicationId>
-    <ApplicationVersion>3</ApplicationVersion>
-    <ApplicationDisplayVersion>2.0</ApplicationDisplayVersion>
+    <ApplicationVersion>4</ApplicationVersion>
+    <ApplicationDisplayVersion>2.1</ApplicationDisplayVersion>
     <ApplicationTitle>穴位测验大师</ApplicationTitle>
     <TrimMode>partial</TrimMode>
     <AndroidLinkMode>SdkOnly</AndroidLinkMode>
     <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
-    <RuntimeIdentifiers>android-arm64;android-arm;android-x64;android-x86</RuntimeIdentifiers>
+    <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
     <PublishTrimmed>true</PublishTrimmed>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidEnableProguard>false</AndroidEnableProguard>
