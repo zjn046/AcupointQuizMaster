@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="设置"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:gravity="center"
+            android:padding="24dp"
+            android:textColor="#2196F3" />
+
+        <!-- API设置区域 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F5F5F5"
+            android:padding="16dp"
+            android:layout_marginBottom="24dp">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="AI服务配置"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp"
+                android:textColor="#333333" />
+
+            <!-- AI平台选择 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="AI平台"
+                    android:textSize="16sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/platformSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:drawable/btn_dropdown"
+                    android:padding="12dp" />
+
+            </LinearLayout>
+
+            <!-- API地址 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="API地址"
+                    android:textSize="16sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/apiUrlEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="https://api.openai.com/v1/chat/completions"
+                    android:inputType="textUri"
+                    android:background="@android:drawable/editbox_background"
+                    android:padding="12dp"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- API密钥 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="API密钥"
+                    android:textSize="16sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/apiKeyEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="输入您的API密钥"
+                    android:inputType="textPassword"
+                    android:background="@android:drawable/editbox_background"
+                    android:padding="12dp"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- 模型名称 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="模型名称"
+                    android:textSize="16sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <EditText
+                    android:id="@+id/modelNameEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="gpt-3.5-turbo"
+                    android:inputType="text"
+                    android:background="@android:drawable/editbox_background"
+                    android:padding="12dp"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- 操作按钮区域 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="32dp">
+
+            <Button
+                android:id="@+id/saveButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="保存设置"
+                android:textSize="18sp"
+                android:layout_margin="8dp"
+                android:backgroundTint="#4CAF50"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/testButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="测试连接"
+                android:textSize="18sp"
+                android:layout_margin="8dp"
+                android:backgroundTint="#FF9800"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/resetButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="重置为默认"
+                android:textSize="18sp"
+                android:layout_margin="8dp"
+                android:backgroundTint="#9E9E9E"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/backButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="返回"
+                android:textSize="18sp"
+                android:layout_margin="8dp"
+                android:backgroundTint="#607D8B"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+        <!-- 状态显示区域 -->
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="请配置API设置以启用AI测评功能"
+            android:textSize="14sp"
+            android:textColor="#666666"
+            android:gravity="center"
+            android:padding="16dp"
+            android:layout_marginTop="32dp"
+            android:background="#FFF9C4" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,38 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0-android</TargetFramework>
+    <SupportedOSPlatformVersion>21</SupportedOSPlatformVersion>
+    <OutputType>Exe</OutputType>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <ApplicationId>com.acupoint.quizmaster</ApplicationId>
+    <ApplicationVersion>3</ApplicationVersion>
+    <ApplicationDisplayVersion>2.0</ApplicationDisplayVersion>
+    <ApplicationTitle>穴位测验大师</ApplicationTitle>
+    <TrimMode>partial</TrimMode>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <AndroidCreatePackagePerAbi>true</AndroidCreatePackagePerAbi>
+    <RuntimeIdentifiers>android-arm64;android-arm;android-x64;android-x86</RuntimeIdentifiers>
+    <PublishTrimmed>true</PublishTrimmed>
+    <AndroidUseAapt2>true</AndroidUseAapt2>
+    <AndroidEnableProguard>false</AndroidEnableProguard>
+    <AndroidR8JarPath />
+    <AndroidLinkTool>r8</AndroidLinkTool>
+    <AndroidDexTool>d8</AndroidDexTool>
+    <!-- 优化APK大小 -->
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <!-- Android签名配置已移除，发布时需要手动配置 -->
+    <!-- <AndroidKeyStore>true</AndroidKeyStore> -->
+    <!-- <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore> -->
+    <!-- <AndroidSigningKeyAlias>mykey</AndroidSigningKeyAlias> -->
+    <!-- <AndroidSigningKeyPass>密码</AndroidSigningKeyPass> -->
+    <!-- <AndroidSigningStorePass>密码</AndroidSigningStorePass> -->
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+  </ItemGroup>
+
+</Project>
