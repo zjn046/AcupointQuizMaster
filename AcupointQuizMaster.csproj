@@ -9,9 +9,16 @@
     <ApplicationVersion>2</ApplicationVersion>
     <ApplicationDisplayVersion>2.1.2</ApplicationDisplayVersion>
     <ApplicationTitle>穴位测验大师</ApplicationTitle>
-    <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
     <AndroidDexTool>d8</AndroidDexTool>
     <RunAOTCompilation>false</RunAOTCompilation>
+    <AndroidManifest>AndroidManifest.xml</AndroidManifest>
+    <AndroidUseAapt2>true</AndroidUseAapt2>
+    <AndroidEnableDesugar>false</AndroidEnableDesugar>
+    <AndroidGenerateJniMarshalMethods>false</AndroidGenerateJniMarshalMethods>
+    <TrimMode>partial</TrimMode>
+    <AndroidUseAssemblyStore>false</AndroidUseAssemblyStore>
+    <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
     <!-- Android签名配置已移除，发布时需要手动配置 -->
     <!-- <AndroidKeyStore>true</AndroidKeyStore> -->
     <!-- <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore> -->
