@@ -72,7 +72,7 @@
 - 建议内存: 512MB以上
 
 ### 安装方式
-1. 从发布页面下载最新安装包文件
+1. 从[发布页面](https://github.com/zjn046/AcupointQuizMaster/releases)下载最新安装包文件
 2. 在安卓设备上启用"未知来源应用安装"
 3. 安装应用包文件
 
@@ -123,8 +123,8 @@
 
 如有问题或建议，欢迎通过以下方式联系：
 
-- 创建问题反馈: [项目问题反馈页面]
-- 邮件联系: [您的邮箱]
+- 创建问题反馈: [项目问题反馈页面](https://github.com/zjn046/AcupointQuizMaster/issues)
+- 邮件联系: zjn@littleboy.uk
 
 ---
 
