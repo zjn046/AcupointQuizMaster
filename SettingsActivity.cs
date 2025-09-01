@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Views;
 using Android.Widget;
 using AcupointQuizMaster.Models;
 using AcupointQuizMaster.Services;
@@ -22,6 +23,8 @@ namespace AcupointQuizMaster
         private Spinner? _apiPlatformSpinner;
         private TextView? _apiUrlDisplay;
         private TextView? _apiKeyDisplay;
+        private EditText? _apiUrlEditText;
+        private EditText? _apiKeyEditText;
         private Spinner? _modelSpinner;
         private Button? _saveButton;
         private Button? _testButton;
@@ -64,6 +67,8 @@ namespace AcupointQuizMaster
             _apiPlatformSpinner = FindViewById<Spinner>(Resource.Id.apiPlatformSpinner);
             _apiUrlDisplay = FindViewById<TextView>(Resource.Id.apiUrlDisplay);
             _apiKeyDisplay = FindViewById<TextView>(Resource.Id.apiKeyDisplay);
+            _apiUrlEditText = FindViewById<EditText>(Resource.Id.apiUrlEditText);
+            _apiKeyEditText = FindViewById<EditText>(Resource.Id.apiKeyEditText);
             _modelSpinner = FindViewById<Spinner>(Resource.Id.modelSpinner);
             _saveButton = FindViewById<Button>(Resource.Id.saveButton);
             _testButton = FindViewById<Button>(Resource.Id.testButton);
@@ -179,9 +184,8 @@ namespace AcupointQuizMaster
 
                 if (string.IsNullOrEmpty(selectedPlatform.ConfigUrl))
                 {
-                    // 没有远程配置URL的平台，显示需要手动配置
-                    _apiUrlDisplay?.SetText("需要手动配置", TextView.BufferType.Normal);
-                    _apiKeyDisplay?.SetText("需要手动配置", TextView.BufferType.Normal);
+                    // 需要手动配置的平台，显示输入框
+                    ShowManualConfigInputs();
                     UpdateStatus("此平台需要手动配置API信息");
                     return;
                 }
@@ -189,6 +193,7 @@ namespace AcupointQuizMaster
                 // DeepSeek (欢喜就好提供) 平台特殊处理
                 if (selectedPlatform.Id == "deepseek")
                 {
+                    ShowAutomaticConfigDisplay();
                     UpdateStatus("正在获取欢喜就好提供的配置...");
                     
                     var remoteConfig = await _configService.GetRemoteConfigAsync(selectedPlatform.ConfigUrl);
@@ -214,6 +219,7 @@ namespace AcupointQuizMaster
                 else
                 {
                     // 其他有远程配置的平台
+                    ShowAutomaticConfigDisplay();
                     UpdateStatus("正在获取平台配置...");
                     
                     var remoteConfig = await _configService.GetRemoteConfigAsync(selectedPlatform.ConfigUrl);
@@ -243,6 +249,28 @@ namespace AcupointQuizMaster
             }
         }
 
+        private void ShowManualConfigInputs()
+        {
+            // 隐藏只读显示，显示输入框
+            if (_apiUrlDisplay != null) _apiUrlDisplay.Visibility = ViewStates.Gone;
+            if (_apiKeyDisplay != null) _apiKeyDisplay.Visibility = ViewStates.Gone;
+            if (_apiUrlEditText != null) _apiUrlEditText.Visibility = ViewStates.Visible;
+            if (_apiKeyEditText != null) _apiKeyEditText.Visibility = ViewStates.Visible;
+            
+            // 设置当前值
+            _apiUrlEditText?.SetText(_currentSettings.ApiUrl, TextView.BufferType.Editable);
+            _apiKeyEditText?.SetText(_currentSettings.ApiKey, TextView.BufferType.Editable);
+        }
+
+        private void ShowAutomaticConfigDisplay()
+        {
+            // 显示只读显示，隐藏输入框
+            if (_apiUrlDisplay != null) _apiUrlDisplay.Visibility = ViewStates.Visible;
+            if (_apiKeyDisplay != null) _apiKeyDisplay.Visibility = ViewStates.Visible;
+            if (_apiUrlEditText != null) _apiUrlEditText.Visibility = ViewStates.Gone;
+            if (_apiKeyEditText != null) _apiKeyEditText.Visibility = ViewStates.Gone;
+        }
+
         private string MaskApiKey(string apiKey)
         {
             if (string.IsNullOrEmpty(apiKey)) return "未设置";
@@ -256,6 +284,16 @@ namespace AcupointQuizMaster
             try
             {
                 if (_persistenceService == null) return;
+
+                // 从手动输入框获取API配置（如果可见）
+                if (_apiUrlEditText != null && _apiUrlEditText.Visibility == ViewStates.Visible)
+                {
+                    _currentSettings.ApiUrl = _apiUrlEditText.Text?.Trim() ?? "";
+                }
+                if (_apiKeyEditText != null && _apiKeyEditText.Visibility == ViewStates.Visible)
+                {
+                    _currentSettings.ApiKey = _apiKeyEditText.Text?.Trim() ?? "";
+                }
 
                 // 获取选中的模型
                 if (_modelSpinner != null && _modelSpinner.SelectedItemPosition >= 0 && 
@@ -293,6 +331,16 @@ namespace AcupointQuizMaster
             {
                 // 获取当前设置用于测试
                 var testSettings = _currentSettings.Clone();
+                
+                // 从手动输入框获取API配置（如果可见）
+                if (_apiUrlEditText != null && _apiUrlEditText.Visibility == ViewStates.Visible)
+                {
+                    testSettings.ApiUrl = _apiUrlEditText.Text?.Trim() ?? "";
+                }
+                if (_apiKeyEditText != null && _apiKeyEditText.Visibility == ViewStates.Visible)
+                {
+                    testSettings.ApiKey = _apiKeyEditText.Text?.Trim() ?? "";
+                }
                 
                 // 获取选中的模型
                 if (_modelSpinner != null && _modelSpinner.SelectedItemPosition >= 0 && 

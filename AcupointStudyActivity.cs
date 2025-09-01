@@ -5,6 +5,8 @@ using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Widget;
+using Android.Views;
+using Android.Views.Accessibility;
 using AcupointQuizMaster.Models;
 using AcupointQuizMaster.Services;
 
@@ -26,6 +28,10 @@ namespace AcupointQuizMaster
         private BankInfo? _selectedBank;
         private readonly List<string> _meridianNames = new List<string>();
         private readonly List<string> _acupointNames = new List<string>();
+        
+        // TalkBack转子功能支持
+        private GestureDetector? _gestureDetector;
+        private bool _isAccessibilityEnabled = false;
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -37,6 +43,7 @@ namespace AcupointQuizMaster
                 InitializeServices();
                 InitializeUI();
                 LoadAvailableBanks();
+                SetupAccessibilityFeatures();
             }
             catch (Exception ex)
             {
@@ -48,6 +55,13 @@ namespace AcupointQuizMaster
         private void InitializeServices()
         {
             _bankParsingService = new BankParsingService(this);
+        }
+
+        private void SetupAccessibilityFeatures()
+        {
+            // 检测是否启用了无障碍服务
+            var accessibilityManager = GetSystemService(AccessibilityService) as AccessibilityManager;
+            _isAccessibilityEnabled = accessibilityManager?.IsEnabled ?? false;
         }
 
         private void InitializeUI()
