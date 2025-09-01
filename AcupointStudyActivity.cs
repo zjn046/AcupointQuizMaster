@@ -58,9 +58,19 @@ namespace AcupointQuizMaster
             _acupointDetailText = FindViewById<TextView>(Resource.Id.acupointDetailText);
             _backButton = FindViewById<Button>(Resource.Id.backButton);
 
-            // 绑定事件
-            if (_meridianSpinner != null) _meridianSpinner.ItemSelected += OnMeridianSelected;
-            if (_acupointSpinner != null) _acupointSpinner.ItemSelected += OnAcupointSelected;
+            // 设置无障碍支持
+            if (_meridianSpinner != null) 
+            {
+                _meridianSpinner.ContentDescription = "选择要学习的经络，当前未选择";
+                _meridianSpinner.ItemSelected += OnMeridianSelected;
+            }
+            
+            if (_acupointSpinner != null) 
+            {
+                _acupointSpinner.ContentDescription = "选择要学习的穴位，请先选择经络";
+                _acupointSpinner.ItemSelected += OnAcupointSelected;
+            }
+            
             if (_backButton != null) _backButton.Click += OnBackClick;
         }
 
@@ -123,6 +133,12 @@ namespace AcupointQuizMaster
 
                 _selectedBank = _availableBanks[e.Position];
                 
+                // 更新无障碍描述
+                if (_meridianSpinner != null)
+                {
+                    _meridianSpinner.ContentDescription = $"选择要学习的经络，当前选择：{_selectedBank.Name}";
+                }
+                
                 // 更新穴位选择器
                 UpdateAcupointSpinner();
                 
@@ -145,6 +161,9 @@ namespace AcupointQuizMaster
             var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, _acupointNames);
             adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
             _acupointSpinner.Adapter = adapter;
+            
+            // 更新穴位选择器的无障碍描述
+            _acupointSpinner.ContentDescription = $"选择要学习的穴位，当前经络：{_selectedBank.Name}，共{_acupointNames.Count}个穴位";
         }
 
         private void OnAcupointSelected(object? sender, AdapterView.ItemSelectedEventArgs e)
@@ -154,6 +173,12 @@ namespace AcupointQuizMaster
                 if (e.Position < 0 || e.Position >= _acupointNames.Count || _selectedBank == null) return;
 
                 var selectedAcupointName = _acupointNames[e.Position];
+                
+                // 更新穴位选择器的无障碍描述
+                if (_acupointSpinner != null)
+                {
+                    _acupointSpinner.ContentDescription = $"选择要学习的穴位，当前选择：{selectedAcupointName}";
+                }
                 
                 if (_selectedBank.AcupointDetails.TryGetValue(selectedAcupointName, out var acupointInfo))
                 {

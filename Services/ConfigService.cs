@@ -34,24 +34,66 @@ namespace AcupointQuizMaster.Services
         {
             new ApiPlatform
             {
+                Id = "deepseek",
+                Name = "DeepSeek (欢喜就好提供)",
+                ConfigUrl = "http://8.153.170.85:8000/config.json",
+                AvailableModels = new[] { "deepseek-chat", "deepseek-coder" }
+            },
+            new ApiPlatform
+            {
                 Id = "openai",
                 Name = "OpenAI",
                 ConfigUrl = "",
-                AvailableModels = new[] { "gpt-3.5-turbo", "gpt-4", "gpt-4o", "gpt-4o-mini" }
+                AvailableModels = new[] { "gpt-3.5-turbo", "gpt-4", "gpt-4o", "gpt-4o-mini", "gpt-4-turbo" }
             },
             new ApiPlatform
             {
                 Id = "claude",
                 Name = "Claude (Anthropic)",
                 ConfigUrl = "",
-                AvailableModels = new[] { "claude-3-haiku-20240307", "claude-3-sonnet-20240229", "claude-3-opus-20240229" }
+                AvailableModels = new[] { "claude-3-haiku-20240307", "claude-3-sonnet-20240229", "claude-3-opus-20240229", "claude-3-5-sonnet-20241022" }
             },
             new ApiPlatform
             {
-                Id = "deepseek",
-                Name = "DeepSeek (欢喜就好提供)",
-                ConfigUrl = "http://8.153.170.85:8000/config.json",
-                AvailableModels = new[] { "deepseek-chat", "deepseek-coder" }
+                Id = "gemini",
+                Name = "Google Gemini",
+                ConfigUrl = "",
+                AvailableModels = new[] { "gemini-pro", "gemini-pro-vision", "gemini-1.5-pro", "gemini-1.5-flash" }
+            },
+            new ApiPlatform
+            {
+                Id = "moonshot",
+                Name = "月之暗面 Kimi",
+                ConfigUrl = "",
+                AvailableModels = new[] { "moonshot-v1-8k", "moonshot-v1-32k", "moonshot-v1-128k" }
+            },
+            new ApiPlatform
+            {
+                Id = "qianwen",
+                Name = "阿里云通义千问",
+                ConfigUrl = "",
+                AvailableModels = new[] { "qwen-plus", "qwen-turbo", "qwen-max", "qwen-max-longcontext" }
+            },
+            new ApiPlatform
+            {
+                Id = "baidu",
+                Name = "百度文心一言",
+                ConfigUrl = "",
+                AvailableModels = new[] { "ernie-4.0-8k", "ernie-3.5-8k", "ernie-turbo-8k", "ernie-speed-128k" }
+            },
+            new ApiPlatform
+            {
+                Id = "zhipu",
+                Name = "智谱AI GLM",
+                ConfigUrl = "",
+                AvailableModels = new[] { "glm-4", "glm-4v", "glm-3-turbo" }
+            },
+            new ApiPlatform
+            {
+                Id = "custom",
+                Name = "第三方平台",
+                ConfigUrl = "",
+                AvailableModels = new[] { "custom-model-1", "custom-model-2" }
             }
         };
 

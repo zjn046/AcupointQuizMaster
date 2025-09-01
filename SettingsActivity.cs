@@ -186,26 +186,55 @@ namespace AcupointQuizMaster
                     return;
                 }
 
-                UpdateStatus("正在获取平台配置...");
-                
-                var remoteConfig = await _configService.GetRemoteConfigAsync(selectedPlatform.ConfigUrl);
-                if (remoteConfig != null)
+                // DeepSeek (欢喜就好提供) 平台特殊处理
+                if (selectedPlatform.Id == "deepseek")
                 {
-                    _currentSettings.ApiUrl = remoteConfig.ApiUrl;
-                    _currentSettings.ApiKey = remoteConfig.ApiKey;
+                    UpdateStatus("正在获取欢喜就好提供的配置...");
                     
-                    // 显示配置信息（隐藏部分API密钥）
-                    _apiUrlDisplay?.SetText(remoteConfig.ApiUrl, TextView.BufferType.Normal);
-                    var maskedApiKey = MaskApiKey(remoteConfig.ApiKey);
-                    _apiKeyDisplay?.SetText(maskedApiKey, TextView.BufferType.Normal);
-                    
-                    UpdateStatus("已获取平台配置");
+                    var remoteConfig = await _configService.GetRemoteConfigAsync(selectedPlatform.ConfigUrl);
+                    if (remoteConfig != null)
+                    {
+                        _currentSettings.ApiUrl = remoteConfig.ApiUrl;
+                        _currentSettings.ApiKey = remoteConfig.ApiKey;
+                        
+                        // 显示配置信息（隐藏部分API密钥）
+                        _apiUrlDisplay?.SetText($"{remoteConfig.ApiUrl} (自动配置)", TextView.BufferType.Normal);
+                        var maskedApiKey = MaskApiKey(remoteConfig.ApiKey);
+                        _apiKeyDisplay?.SetText($"{maskedApiKey} (自动配置)", TextView.BufferType.Normal);
+                        
+                        UpdateStatus("已获取欢喜就好提供的平台配置，无需手动配置");
+                    }
+                    else
+                    {
+                        _apiUrlDisplay?.SetText("获取配置失败", TextView.BufferType.Normal);
+                        _apiKeyDisplay?.SetText("获取配置失败", TextView.BufferType.Normal);
+                        UpdateStatus("获取欢喜就好提供的配置失败，请检查网络连接");
+                    }
                 }
                 else
                 {
-                    _apiUrlDisplay?.SetText("获取配置失败", TextView.BufferType.Normal);
-                    _apiKeyDisplay?.SetText("获取配置失败", TextView.BufferType.Normal);
-                    UpdateStatus("获取平台配置失败，请检查网络连接");
+                    // 其他有远程配置的平台
+                    UpdateStatus("正在获取平台配置...");
+                    
+                    var remoteConfig = await _configService.GetRemoteConfigAsync(selectedPlatform.ConfigUrl);
+                    if (remoteConfig != null)
+                    {
+                        _currentSettings.ApiUrl = remoteConfig.ApiUrl;
+                        _currentSettings.ApiKey = remoteConfig.ApiKey;
+                        
+                        // 显示配置信息（隐藏部分API密钥）
+                        _apiUrlDisplay?.SetText(remoteConfig.ApiUrl, TextView.BufferType.Normal);
+                        var maskedApiKey = MaskApiKey(remoteConfig.ApiKey);
+                        _apiKeyDisplay?.SetText(maskedApiKey, TextView.BufferType.Normal);
+                        
+                        UpdateStatus("已获取平台配置");
+                    }
+                    else
+                    {
+                        _apiUrlDisplay?.SetText("获取配置失败", TextView.BufferType.Normal);
+                        _apiKeyDisplay?.SetText("获取配置失败", TextView.BufferType.Normal);
+                        UpdateStatus("获取平台配置失败，请检查网络连接");
+                    }
                 }
             }
             catch (Exception ex)
