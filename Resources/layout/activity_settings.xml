@@ -38,7 +38,32 @@
                 android:layout_marginBottom="16dp"
                 android:textColor="#333333" />
 
-            <!-- API地址 -->
+            <!-- API平台选择 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="API平台"
+                    android:textSize="16sp"
+                    android:textColor="#666666"
+                    android:layout_marginBottom="8dp" />
+
+                <Spinner
+                    android:id="@+id/apiPlatformSpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:drawable/btn_dropdown"
+                    android:padding="12dp"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- API地址 (只读显示) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -53,19 +78,20 @@
                     android:textColor="#666666"
                     android:layout_marginBottom="8dp" />
 
-                <EditText
-                    android:id="@+id/apiUrlEditText"
+                <TextView
+                    android:id="@+id/apiUrlDisplay"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="https://api.openai.com/v1/chat/completions"
-                    android:inputType="textUri"
-                    android:background="@android:drawable/editbox_background"
+                    android:text="选择平台后自动获取"
+                    android:textSize="14sp"
+                    android:textColor="#333333"
+                    android:background="#F0F0F0"
                     android:padding="12dp"
-                    android:textSize="14sp" />
+                    android:minHeight="48dp" />
 
             </LinearLayout>
 
-            <!-- API密钥 -->
+            <!-- API密钥 (只读显示) -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -80,19 +106,20 @@
                     android:textColor="#666666"
                     android:layout_marginBottom="8dp" />
 
-                <EditText
-                    android:id="@+id/apiKeyEditText"
+                <TextView
+                    android:id="@+id/apiKeyDisplay"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="输入您的API密钥"
-                    android:inputType="textPassword"
-                    android:background="@android:drawable/editbox_background"
+                    android:text="选择平台后自动获取"
+                    android:textSize="14sp"
+                    android:textColor="#333333"
+                    android:background="#F0F0F0"
                     android:padding="12dp"
-                    android:textSize="14sp" />
+                    android:minHeight="48dp" />
 
             </LinearLayout>
 
-            <!-- 模型名称 -->
+            <!-- 模型选择 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -102,18 +129,16 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="模型名称"
+                    android:text="模型选择"
                     android:textSize="16sp"
                     android:textColor="#666666"
                     android:layout_marginBottom="8dp" />
 
-                <EditText
-                    android:id="@+id/modelNameEditText"
+                <Spinner
+                    android:id="@+id/modelSpinner"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:hint="gpt-3.5-turbo"
-                    android:inputType="text"
-                    android:background="@android:drawable/editbox_background"
+                    android:background="@android:drawable/btn_dropdown"
                     android:padding="12dp"
                     android:textSize="14sp" />
 

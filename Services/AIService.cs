@@ -28,10 +28,11 @@ namespace AcupointQuizMaster.Services
             _httpClient = new HttpClient();
             _httpClient.Timeout = TimeSpan.FromSeconds(45);
             
-            // 初始化默认设置 - 使用DefaultApiConfig提供的默认配置，环境变量优先
-            _apiKey = DefaultApiConfig.GetApiKey();
-            _apiUrl = DefaultApiConfig.GetApiUrl();
-            _modelName = DefaultApiConfig.GetModelName();
+            // 初始化默认设置
+            var defaultSettings = DefaultApiConfig.GetDefaultSettings();
+            _apiKey = defaultSettings.ApiKey;
+            _apiUrl = defaultSettings.ApiUrl;
+            _modelName = defaultSettings.ModelName;
         }
 
         /// <summary>

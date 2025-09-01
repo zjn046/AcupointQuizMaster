@@ -7,6 +7,9 @@ namespace AcupointQuizMaster.Models
     /// </summary>
     public class AppSettings
     {
+        [JsonProperty("api_platform")]
+        public string ApiPlatform { get; set; } = "deepseek";
+
         [JsonProperty("api_url")]
         public string ApiUrl { get; set; } = string.Empty;
 
@@ -56,6 +59,7 @@ namespace AcupointQuizMaster.Models
         {
             return new AppSettings
             {
+                ApiPlatform = this.ApiPlatform,
                 ApiUrl = this.ApiUrl,
                 ApiKey = this.ApiKey,
                 ModelName = this.ModelName,

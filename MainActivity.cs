@@ -29,6 +29,7 @@ public class MainActivity : Activity
     private Button? _correctButton;
     private Button? _wrongButton;
     private Button? _aiEvaluationButton;
+    private Button? _acupointStudyButton;
     private Button? _viewDetailButton;
     private Button? _resultButton;
     private Button? _helpButton;
@@ -82,6 +83,7 @@ public class MainActivity : Activity
         _correctButton = FindViewById<Button>(Resource.Id.correctButton);
         _wrongButton = FindViewById<Button>(Resource.Id.wrongButton);
         _aiEvaluationButton = FindViewById<Button>(Resource.Id.aiEvaluationButton);
+        _acupointStudyButton = FindViewById<Button>(Resource.Id.acupointStudyButton);
         _viewDetailButton = FindViewById<Button>(Resource.Id.viewDetailButton);
         _resultButton = FindViewById<Button>(Resource.Id.resultButton);
         _helpButton = FindViewById<Button>(Resource.Id.helpButton);
@@ -93,6 +95,7 @@ public class MainActivity : Activity
         if (_correctButton != null) _correctButton.Click += OnCorrectClick;
         if (_wrongButton != null) _wrongButton.Click += OnWrongClick;
         if (_aiEvaluationButton != null) _aiEvaluationButton.Click += OnAIEvaluationClick;
+        if (_acupointStudyButton != null) _acupointStudyButton.Click += OnAcupointStudyClick;
         if (_viewDetailButton != null) _viewDetailButton.Click += OnViewDetailClick;
         if (_resultButton != null) _resultButton.Click += OnResultClick;
         if (_helpButton != null) _helpButton.Click += OnHelpClick;
@@ -387,6 +390,13 @@ public class MainActivity : Activity
     {
         ShowHelpDialog();
     }
+
+    private void OnAcupointStudyClick(object? sender, EventArgs e)
+    {
+        var intent = new Intent(this, typeof(AcupointStudyActivity));
+        StartActivity(intent);
+    }
+
     private void OnSettingsClick(object? sender, EventArgs e)
     {
         var intent = new Intent(this, typeof(SettingsActivity));        StartActivity(intent);
@@ -430,10 +440,11 @@ public class MainActivity : Activity
             switch (_currentState)
             {
                 case QuizState.Preparation:
-                    // 主界面：只显示3个主要按钮
+                    // 主界面：只显示主要按钮
                     if (mainButtonsLayout != null) mainButtonsLayout.Visibility = ViewStates.Visible;
                     if (_drawButton != null) _drawButton.Enabled = true;
                     if (_aiEvaluationButton != null) _aiEvaluationButton.Enabled = true;
+                    if (_acupointStudyButton != null) _acupointStudyButton.Enabled = true;
                     if (_helpButton != null) _helpButton.Enabled = true;
                     if (_settingsButton != null) _settingsButton.Enabled = true;
                     

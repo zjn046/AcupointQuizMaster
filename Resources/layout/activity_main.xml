@@ -96,6 +96,16 @@
                     android:textColor="@android:color/white" />
 
                 <Button
+                    android:id="@+id/acupointStudyButton"
+                    android:layout_width="280dp"
+                    android:layout_height="60dp"
+                    android:text="穴位学习"
+                    android:textSize="20sp"
+                    android:layout_marginBottom="16dp"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="@android:color/white" />
+
+                <Button
                     android:id="@+id/helpButton"
                     android:layout_width="280dp"
                     android:layout_height="60dp"

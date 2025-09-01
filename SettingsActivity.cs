@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Android.App;
 using Android.Content;
@@ -13,17 +15,22 @@ namespace AcupointQuizMaster
     public class SettingsActivity : Activity
     {
         private PersistenceService? _persistenceService;
+        private ConfigService? _configService;
         private AppSettings _currentSettings = new AppSettings();
         
         // UI控件
-        private EditText? _apiUrlEditText;
-        private EditText? _apiKeyEditText;
-        private EditText? _modelNameEditText;
+        private Spinner? _apiPlatformSpinner;
+        private TextView? _apiUrlDisplay;
+        private TextView? _apiKeyDisplay;
+        private Spinner? _modelSpinner;
         private Button? _saveButton;
         private Button? _testButton;
         private Button? _resetButton;
         private Button? _backButton;
         private TextView? _statusText;
+
+        private readonly List<ApiPlatform> _availablePlatforms = new List<ApiPlatform>();
+        private readonly List<string> _availableModels = new List<string>();
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -46,24 +53,43 @@ namespace AcupointQuizMaster
         private void InitializeServices()
         {
             _persistenceService = new PersistenceService(this);
+            _configService = new ConfigService();
+            
+            // 加载可用平台
+            _availablePlatforms.AddRange(ConfigService.AvailablePlatforms);
         }
 
         private void InitializeUI()
         {
-            _apiUrlEditText = FindViewById<EditText>(Resource.Id.apiUrlEditText);
-            _apiKeyEditText = FindViewById<EditText>(Resource.Id.apiKeyEditText);
-            _modelNameEditText = FindViewById<EditText>(Resource.Id.modelNameEditText);
+            _apiPlatformSpinner = FindViewById<Spinner>(Resource.Id.apiPlatformSpinner);
+            _apiUrlDisplay = FindViewById<TextView>(Resource.Id.apiUrlDisplay);
+            _apiKeyDisplay = FindViewById<TextView>(Resource.Id.apiKeyDisplay);
+            _modelSpinner = FindViewById<Spinner>(Resource.Id.modelSpinner);
             _saveButton = FindViewById<Button>(Resource.Id.saveButton);
             _testButton = FindViewById<Button>(Resource.Id.testButton);
             _resetButton = FindViewById<Button>(Resource.Id.resetButton);
             _backButton = FindViewById<Button>(Resource.Id.backButton);
             _statusText = FindViewById<TextView>(Resource.Id.statusText);
 
+            // 设置平台选择器
+            SetupPlatformSpinner();
+            
             // 绑定事件
             if (_saveButton != null) _saveButton.Click += OnSaveClick;
             if (_testButton != null) _testButton.Click += OnTestClick;
             if (_resetButton != null) _resetButton.Click += OnResetClick;
             if (_backButton != null) _backButton.Click += OnBackClick;
+            if (_apiPlatformSpinner != null) _apiPlatformSpinner.ItemSelected += OnPlatformSelected;
+        }
+
+        private void SetupPlatformSpinner()
+        {
+            if (_apiPlatformSpinner == null) return;
+
+            var platformNames = _availablePlatforms.Select(p => p.Name).ToList();
+            var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, platformNames);
+            adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
+            _apiPlatformSpinner.Adapter = adapter;
         }
 
         private void LoadSettings()
@@ -74,10 +100,11 @@ namespace AcupointQuizMaster
 
                 _currentSettings = _persistenceService.LoadSettings();
                 
-                // 填充UI控件
-                _apiUrlEditText?.SetText(_currentSettings.ApiUrl, TextView.BufferType.Normal);
-                _apiKeyEditText?.SetText(_currentSettings.ApiKey, TextView.BufferType.Normal);
-                _modelNameEditText?.SetText(_currentSettings.ModelName, TextView.BufferType.Normal);
+                // 设置平台选择器的当前值
+                SetSelectedPlatform(_currentSettings.ApiPlatform);
+                
+                // 加载并显示当前平台的配置信息
+                LoadPlatformConfigAsync();
 
                 UpdateStatus();
             }
@@ -87,30 +114,136 @@ namespace AcupointQuizMaster
             }
         }
 
+        private void SetSelectedPlatform(string platformId)
+        {
+            if (_apiPlatformSpinner == null) return;
+            
+            var platformIndex = _availablePlatforms.FindIndex(p => p.Id == platformId);
+            if (platformIndex >= 0)
+            {
+                _apiPlatformSpinner.SetSelection(platformIndex);
+            }
+        }
+
+        private async void OnPlatformSelected(object? sender, AdapterView.ItemSelectedEventArgs e)
+        {
+            try
+            {
+                if (e.Position < 0 || e.Position >= _availablePlatforms.Count) return;
+
+                var selectedPlatform = _availablePlatforms[e.Position];
+                _currentSettings.ApiPlatform = selectedPlatform.Id;
+
+                // 更新模型选择器
+                UpdateModelSpinner(selectedPlatform);
+                
+                // 加载平台配置
+                await LoadPlatformConfigAsync();
+            }
+            catch (Exception ex)
+            {
+                ShowError("平台选择失败", ex.Message);
+            }
+        }
+
+        private void UpdateModelSpinner(ApiPlatform platform)
+        {
+            if (_modelSpinner == null) return;
+
+            _availableModels.Clear();
+            _availableModels.AddRange(platform.AvailableModels);
+
+            var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, _availableModels);
+            adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
+            _modelSpinner.Adapter = adapter;
+
+            // 选择当前模型，如果存在的话
+            var currentModelIndex = _availableModels.IndexOf(_currentSettings.ModelName);
+            if (currentModelIndex >= 0)
+            {
+                _modelSpinner.SetSelection(currentModelIndex);
+            }
+            else if (_availableModels.Count > 0)
+            {
+                _modelSpinner.SetSelection(0);
+                _currentSettings.ModelName = _availableModels[0];
+            }
+        }
+
+        private async Task LoadPlatformConfigAsync()
+        {
+            try
+            {
+                var selectedPlatform = _configService?.GetPlatformById(_currentSettings.ApiPlatform);
+                if (selectedPlatform == null) return;
+
+                if (string.IsNullOrEmpty(selectedPlatform.ConfigUrl))
+                {
+                    // 没有远程配置URL的平台，显示需要手动配置
+                    _apiUrlDisplay?.SetText("需要手动配置", TextView.BufferType.Normal);
+                    _apiKeyDisplay?.SetText("需要手动配置", TextView.BufferType.Normal);
+                    UpdateStatus("此平台需要手动配置API信息");
+                    return;
+                }
+
+                UpdateStatus("正在获取平台配置...");
+                
+                var remoteConfig = await _configService.GetRemoteConfigAsync(selectedPlatform.ConfigUrl);
+                if (remoteConfig != null)
+                {
+                    _currentSettings.ApiUrl = remoteConfig.ApiUrl;
+                    _currentSettings.ApiKey = remoteConfig.ApiKey;
+                    
+                    // 显示配置信息（隐藏部分API密钥）
+                    _apiUrlDisplay?.SetText(remoteConfig.ApiUrl, TextView.BufferType.Normal);
+                    var maskedApiKey = MaskApiKey(remoteConfig.ApiKey);
+                    _apiKeyDisplay?.SetText(maskedApiKey, TextView.BufferType.Normal);
+                    
+                    UpdateStatus("已获取平台配置");
+                }
+                else
+                {
+                    _apiUrlDisplay?.SetText("获取配置失败", TextView.BufferType.Normal);
+                    _apiKeyDisplay?.SetText("获取配置失败", TextView.BufferType.Normal);
+                    UpdateStatus("获取平台配置失败，请检查网络连接");
+                }
+            }
+            catch (Exception ex)
+            {
+                ShowError("获取配置失败", ex.Message);
+            }
+        }
+
+        private string MaskApiKey(string apiKey)
+        {
+            if (string.IsNullOrEmpty(apiKey)) return "未设置";
+            if (apiKey.Length <= 8) return "****";
+            
+            return apiKey.Substring(0, 4) + "****" + apiKey.Substring(apiKey.Length - 4);
+        }
+
         private void OnSaveClick(object? sender, EventArgs e)
         {
             try
             {
                 if (_persistenceService == null) return;
 
-                // 从UI控件获取数据
-                var newSettings = new AppSettings
+                // 获取选中的模型
+                if (_modelSpinner != null && _modelSpinner.SelectedItemPosition >= 0 && 
+                    _modelSpinner.SelectedItemPosition < _availableModels.Count)
                 {
-                    ApiUrl = _apiUrlEditText?.Text?.Trim() ?? string.Empty,
-                    ApiKey = _apiKeyEditText?.Text?.Trim() ?? string.Empty,
-                    ModelName = _modelNameEditText?.Text?.Trim() ?? string.Empty
-                };
+                    _currentSettings.ModelName = _availableModels[_modelSpinner.SelectedItemPosition];
+                }
 
                 // 验证设置
-                if (!ValidateSettings(newSettings))
+                if (!ValidateSettings(_currentSettings))
                 {
                     return;
                 }
 
                 // 保存设置
-                if (_persistenceService.SaveSettings(newSettings))
+                if (_persistenceService.SaveSettings(_currentSettings))
                 {
-                    _currentSettings = newSettings;
                     UpdateStatus("设置已保存");
                     ShowMessage("成功", "设置已保存成功！");
                 }
@@ -129,13 +262,15 @@ namespace AcupointQuizMaster
         {
             try
             {
-                // 获取当前界面的设置
-                var testSettings = new AppSettings
+                // 获取当前设置用于测试
+                var testSettings = _currentSettings.Clone();
+                
+                // 获取选中的模型
+                if (_modelSpinner != null && _modelSpinner.SelectedItemPosition >= 0 && 
+                    _modelSpinner.SelectedItemPosition < _availableModels.Count)
                 {
-                    ApiUrl = _apiUrlEditText?.Text?.Trim() ?? string.Empty,
-                    ApiKey = _apiKeyEditText?.Text?.Trim() ?? string.Empty,
-                    ModelName = _modelNameEditText?.Text?.Trim() ?? string.Empty
-                };
+                    testSettings.ModelName = _availableModels[_modelSpinner.SelectedItemPosition];
+                }
 
                 if (!ValidateSettings(testSettings))
                 {
@@ -182,10 +317,11 @@ namespace AcupointQuizMaster
             try
             {
                 var defaultSettings = AppSettings.Default();
+                _currentSettings = defaultSettings;
                 
-                _apiUrlEditText?.SetText(defaultSettings.ApiUrl, TextView.BufferType.Normal);
-                _apiKeyEditText?.SetText(defaultSettings.ApiKey, TextView.BufferType.Normal);
-                _modelNameEditText?.SetText(defaultSettings.ModelName, TextView.BufferType.Normal);
+                // 重新设置UI
+                SetSelectedPlatform(defaultSettings.ApiPlatform);
+                LoadPlatformConfigAsync();
 
                 UpdateStatus("已重置为默认设置");
                 ShowMessage("重置成功", "设置已重置为默认值，请记得保存。");
@@ -205,19 +341,19 @@ namespace AcupointQuizMaster
         {
             if (string.IsNullOrWhiteSpace(settings.ApiUrl))
             {
-                ShowError("验证失败", "API地址不能为空");
+                ShowError("验证失败", "API地址不能为空，请选择一个有效的平台");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(settings.ApiKey))
             {
-                ShowError("验证失败", "API密钥不能为空");
+                ShowError("验证失败", "API密钥不能为空，请选择一个有效的平台");
                 return false;
             }
 
             if (string.IsNullOrWhiteSpace(settings.ModelName))
             {
-                ShowError("验证失败", "模型名称不能为空");
+                ShowError("验证失败", "模型名称不能为空，请选择一个模型");
                 return false;
             }
 
