@@ -9,26 +9,21 @@
     <ApplicationVersion>5</ApplicationVersion>
     <ApplicationDisplayVersion>2.4.0</ApplicationDisplayVersion>
     <ApplicationTitle>穴位测验大师</ApplicationTitle>
-    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidDexTool>d8</AndroidDexTool>
     <RunAOTCompilation>false</RunAOTCompilation>
     <AndroidManifest>AndroidManifest.xml</AndroidManifest>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidEnableDesugar>false</AndroidEnableDesugar>
-    <AndroidGenerateJniMarshalMethods>false</AndroidGenerateJniMarshalMethods>
-    <TrimMode>partial</TrimMode>
+    <AndroidGenerateJniMarshalMethods>true</AndroidGenerateJniMarshalMethods>
     <AndroidUseAssemblyStore>false</AndroidUseAssemblyStore>
     <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <!-- 额外的大小优化配置 -->
-    <AndroidEnableSGenConcurrent>false</AndroidEnableSGenConcurrent>
-    <AndroidLinkSkip>false</AndroidLinkSkip>
-    <AndroidLinkResources>true</AndroidLinkResources>
+    <!-- 简化配置确保稳定性 -->
+    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
     <AndroidDexToolExtraArguments>--min-api 24</AndroidDexToolExtraArguments>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>full</TrimMode>
-    <AndroidLinkMode>Full</AndroidLinkMode>
+    <PublishTrimmed>false</PublishTrimmed>
     <!-- Android签名配置已移除，发布时需要手动配置 -->
     <!-- <AndroidKeyStore>true</AndroidKeyStore> -->
     <!-- <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore> -->
