@@ -6,34 +6,34 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationId>com.acupoint.quizmaster</ApplicationId>
-    <ApplicationVersion>8</ApplicationVersion>
-    <ApplicationDisplayVersion>2.4.2</ApplicationDisplayVersion>
+    <ApplicationVersion>9</ApplicationVersion>
+    <ApplicationDisplayVersion>2.2.0.0</ApplicationDisplayVersion>
     <ApplicationTitle>穴位测验大师</ApplicationTitle>
-    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
+    <AndroidLinkMode>Full</AndroidLinkMode>
     <AndroidDexTool>d8</AndroidDexTool>
-    <RunAOTCompilation>false</RunAOTCompilation>
+    <RunAOTCompilation>true</RunAOTCompilation>
     <AndroidManifest>AndroidManifest.xml</AndroidManifest>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidEnableDesugar>false</AndroidEnableDesugar>
     <AndroidGenerateJniMarshalMethods>false</AndroidGenerateJniMarshalMethods>
-    <AndroidUseAssemblyStore>false</AndroidUseAssemblyStore>
+    <AndroidUseAssemblyStore>true</AndroidUseAssemblyStore>
     <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
     <!-- 平衡配置 - 既不过度优化也不过度膨胀 -->
     <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
-    <AndroidLinkResources>false</AndroidLinkResources>
+    <AndroidLinkResources>true</AndroidLinkResources>
     <AndroidDexToolExtraArguments>--min-api 24</AndroidDexToolExtraArguments>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
-    <PublishTrimmed>false</PublishTrimmed>
-    <TrimMode>none</TrimMode>
+    <PublishTrimmed>true</PublishTrimmed>
+    <TrimMode>full</TrimMode>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
-    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
+    <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
     <!-- 保守配置避免构建错误 -->
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <AndroidLinkTool>r8</AndroidLinkTool>
-    <AndroidEnableProguard>false</AndroidEnableProguard>
+    <AndroidEnableProguard>true</AndroidEnableProguard>
     <!-- Android签名配置已移除，发布时需要手动配置 -->
     <!-- <AndroidKeyStore>true</AndroidKeyStore> -->
     <!-- <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore> -->

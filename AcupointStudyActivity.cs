@@ -6,7 +6,6 @@ using Android.Content;
 using Android.OS;
 using Android.Widget;
 using Android.Views;
-using Android.Views.Accessibility;
 using AcupointQuizMaster.Models;
 using AcupointQuizMaster.Services;
 using SystemException = System.Exception;
@@ -30,12 +29,6 @@ namespace AcupointQuizMaster
         private readonly List<string> _meridianNames = new List<string>();
         private readonly List<string> _acupointNames = new List<string>();
         
-        // 无障碍功能支持
-        private bool _isAccessibilityEnabled = false;
-        
-        // 无障碍动作ID基础值
-        private const int BaseActionIdMeridian = 0x10000;
-        private const int BaseActionIdAcupoint = 0x20000;
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -47,7 +40,6 @@ namespace AcupointQuizMaster
                 InitializeServices();
                 InitializeUI();
                 LoadAvailableBanks();
-                SetupAccessibilityFeatures();
             }
             catch (SystemException ex)
             {
@@ -61,17 +53,6 @@ namespace AcupointQuizMaster
             _bankParsingService = new BankParsingService(this);
         }
 
-        private void SetupAccessibilityFeatures()
-        {
-            // 检测是否启用了无障碍服务
-            var accessibilityManager = GetSystemService(AccessibilityService) as AccessibilityManager;
-            _isAccessibilityEnabled = accessibilityManager?.IsEnabled ?? false;
-            
-            if (_isAccessibilityEnabled)
-            {
-                System.Diagnostics.Debug.WriteLine("TalkBack无障碍功能已启用，开始设置无障碍动作");
-            }
-        }
 
         private void InitializeUI()
         {
@@ -81,16 +62,13 @@ namespace AcupointQuizMaster
             _acupointDetailText = FindViewById<TextView>(Resource.Id.acupointDetailText);
             _backButton = FindViewById<Button>(Resource.Id.backButton);
 
-            // 设置基础无障碍支持
             if (_meridianSpinner != null) 
             {
-                _meridianSpinner.ContentDescription = "选择要学习的经络，当前未选择";
                 _meridianSpinner.ItemSelected += OnMeridianSelected;
             }
             
             if (_acupointSpinner != null) 
             {
-                _acupointSpinner.ContentDescription = "选择要学习的穴位，请先选择经络";
                 _acupointSpinner.ItemSelected += OnAcupointSelected;
             }
             
@@ -133,11 +111,6 @@ namespace AcupointQuizMaster
                 // 设置经络选择器
                 SetupMeridianSpinner();
                 
-                // 重新设置无障碍动作（因为数据已加载）
-                if (_isAccessibilityEnabled)
-                {
-                    SetupMeridianAccessibilityActions();
-                }
             }
             catch (SystemException ex)
             {
@@ -162,11 +135,6 @@ namespace AcupointQuizMaster
 
                 _selectedBank = _availableBanks[e.Position];
                 
-                // 更新无障碍描述
-                if (_meridianSpinner != null)
-                {
-                    _meridianSpinner.ContentDescription = $"选择要学习的经络，当前选择：{_selectedBank.Name}";
-                }
                 
                 // 更新穴位选择器
                 UpdateAcupointSpinner();
@@ -191,14 +159,6 @@ namespace AcupointQuizMaster
             adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
             _acupointSpinner.Adapter = adapter;
             
-            // 更新穴位选择器的无障碍描述
-            _acupointSpinner.ContentDescription = $"选择要学习的穴位，当前经络：{_selectedBank.Name}，共{_acupointNames.Count}个穴位";
-            
-            // 重新设置穴位的无障碍动作
-            if (_isAccessibilityEnabled)
-            {
-                SetupAcupointAccessibilityActions();
-            }
         }
 
         private void OnAcupointSelected(object? sender, AdapterView.ItemSelectedEventArgs e)
@@ -209,11 +169,6 @@ namespace AcupointQuizMaster
 
                 var selectedAcupointName = _acupointNames[e.Position];
                 
-                // 更新穴位选择器的无障碍描述
-                if (_acupointSpinner != null)
-                {
-                    _acupointSpinner.ContentDescription = $"选择要学习的穴位，当前选择：{selectedAcupointName}";
-                }
                 
                 if (_selectedBank.AcupointDetails.TryGetValue(selectedAcupointName, out var acupointInfo))
                 {
@@ -276,99 +231,9 @@ namespace AcupointQuizMaster
             Finish();
         }
 
-        // 设置经络选择器的无障碍支持
-        private void SetupMeridianAccessibilityActions()
-        {
-            if (_meridianSpinner == null || !_isAccessibilityEnabled || _meridianNames.Count == 0) return;
-            
-            try
-            {
-                // 更新内容描述，包含所有可选经络的信息和选择指令  
-                var availableMeridians = string.Join("，", _meridianNames);
-                _meridianSpinner.ContentDescription = $"选择要学习的经络。可用经络有：{availableMeridians}。使用上下滑动切换选择，双击确认";
-                
-                // 设置为可聚焦，确保TalkBack可以找到
-                _meridianSpinner.Focusable = true;
-                _meridianSpinner.ImportantForAccessibility = ImportantForAccessibility.Yes;
-                
-                // 设置为可点击，启用交互功能
-                _meridianSpinner.Clickable = true;
-                
-                System.Diagnostics.Debug.WriteLine($"已为经络选择器设置TalkBack支持，包含 {_meridianNames.Count} 个经络");
-            }
-            catch (SystemException ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"设置经络无障碍支持失败: {ex.Message}");
-            }
-        }
 
-        // 设置穴位选择器的无障碍支持
-        private void SetupAcupointAccessibilityActions()
-        {
-            if (_acupointSpinner == null || !_isAccessibilityEnabled || _acupointNames.Count == 0) return;
-            
-            try
-            {
-                // 更新内容描述，包含所有可选穴位的信息和选择指令
-                var availableAcupoints = string.Join("，", _acupointNames);
-                _acupointSpinner.ContentDescription = $"选择要学习的穴位。当前经络：{_selectedBank?.Name}。可用穴位有：{availableAcupoints}。使用上下滑动切换选择，双击确认";
-                
-                // 设置为可聚焦，确保TalkBack可以找到
-                _acupointSpinner.Focusable = true;  
-                _acupointSpinner.ImportantForAccessibility = ImportantForAccessibility.Yes;
-                
-                // 设置为可点击，启用交互功能
-                _acupointSpinner.Clickable = true;
-                
-                System.Diagnostics.Debug.WriteLine($"已为穴位选择器设置TalkBack支持，包含 {_acupointNames.Count} 个穴位");
-            }
-            catch (SystemException ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"设置穴位无障碍支持失败: {ex.Message}");
-            }
-        }
 
-        // 经络选择方法
-        public void SelectMeridian(int index)
-        {
-            if (_meridianSpinner == null || index < 0 || index >= _availableBanks.Count) return;
-            
-            try
-            {
-                _meridianSpinner.SetSelection(index);
-                
-                // 发出无障碍提示
-                var selectedName = _meridianNames[index];
-                _meridianSpinner.AnnounceForAccessibility($"已选择经络：{selectedName}");
-                
-                System.Diagnostics.Debug.WriteLine($"通过TalkBack动作选择了经络：{selectedName}");
-            }
-            catch (SystemException ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"选择经络失败: {ex.Message}");
-            }
-        }
 
-        // 穴位选择方法
-        public void SelectAcupoint(int index)
-        {
-            if (_acupointSpinner == null || index < 0 || index >= _acupointNames.Count) return;
-            
-            try
-            {
-                _acupointSpinner.SetSelection(index);
-                
-                // 发出无障碍提示
-                var selectedName = _acupointNames[index];
-                _acupointSpinner.AnnounceForAccessibility($"已选择穴位：{selectedName}");
-                
-                System.Diagnostics.Debug.WriteLine($"通过TalkBack动作选择了穴位：{selectedName}");
-            }
-            catch (SystemException ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"选择穴位失败: {ex.Message}");
-            }
-        }
 
         private void ShowError(string title, string message)
         {

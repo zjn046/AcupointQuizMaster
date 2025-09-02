@@ -45,10 +45,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:drawable/btn_dropdown"
                 android:padding="12dp"
-                android:textSize="16sp"
-                android:layout_marginBottom="16dp"
-                android:contentDescription="选择要学习的经络，点击可展开经络列表"
-                android:importantForAccessibility="yes" />
+                android:textSize="16sp" />
 
         </LinearLayout>
 
@@ -76,10 +73,7 @@
                 android:layout_height="wrap_content"
                 android:background="@android:drawable/btn_dropdown"
                 android:padding="12dp"
-                android:textSize="16sp"
-                android:layout_marginBottom="16dp"
-                android:contentDescription="选择要学习的穴位，点击可展开穴位列表"
-                android:importantForAccessibility="yes" />
+                android:textSize="16sp" />
 
         </LinearLayout>
 
