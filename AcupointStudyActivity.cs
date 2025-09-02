@@ -7,8 +7,6 @@ using Android.OS;
 using Android.Widget;
 using Android.Views;
 using Android.Views.Accessibility;
-using AndroidX.Core.View;
-using AndroidX.Core.View.Accessibility;
 using AcupointQuizMaster.Models;
 using AcupointQuizMaster.Services;
 
@@ -33,12 +31,6 @@ namespace AcupointQuizMaster
         
         // 无障碍功能支持
         private bool _isAccessibilityEnabled = false;
-        
-        // 无障碍动作ID
-        public const int ActionSelectNextMeridian = 0x10000;
-        public const int ActionSelectPreviousMeridian = 0x10001;
-        public const int ActionSelectNextAcupoint = 0x10002;
-        public const int ActionSelectPreviousAcupoint = 0x10003;
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -70,10 +62,7 @@ namespace AcupointQuizMaster
             var accessibilityManager = GetSystemService(AccessibilityService) as AccessibilityManager;
             _isAccessibilityEnabled = accessibilityManager?.IsEnabled ?? false;
             
-            if (_isAccessibilityEnabled)
-            {
-                SetupAccessibilityActions();
-            }
+            // 保留基础的内容描述功能，移除复杂的动作以避免兼容性问题
         }
 
         private void InitializeUI()
@@ -84,23 +73,17 @@ namespace AcupointQuizMaster
             _acupointDetailText = FindViewById<TextView>(Resource.Id.acupointDetailText);
             _backButton = FindViewById<Button>(Resource.Id.backButton);
 
-            // 设置无障碍支持
+            // 设置基础无障碍支持
             if (_meridianSpinner != null) 
             {
                 _meridianSpinner.ContentDescription = "选择要学习的经络，当前未选择";
                 _meridianSpinner.ItemSelected += OnMeridianSelected;
-                
-                // 设置无障碍动作
-                SetupMeridianSpinnerAccessibility();
             }
             
             if (_acupointSpinner != null) 
             {
                 _acupointSpinner.ContentDescription = "选择要学习的穴位，请先选择经络";
                 _acupointSpinner.ItemSelected += OnAcupointSelected;
-                
-                // 设置无障碍动作
-                SetupAcupointSpinnerAccessibility();
             }
             
             if (_backButton != null) _backButton.Click += OnBackClick;
@@ -288,158 +271,6 @@ namespace AcupointQuizMaster
         public override void OnBackPressed()
         {
             Finish();
-        }
-        
-        private void SetupAccessibilityActions()
-        {
-            // 为经络和穴位选择器设置无障碍动作
-            SetupMeridianSpinnerAccessibility();
-            SetupAcupointSpinnerAccessibility();
-        }
-        
-        private void SetupMeridianSpinnerAccessibility()
-        {
-            if (_meridianSpinner == null) return;
-            
-            // 添加"下一个经络"无障碍动作
-            var nextMeridianAction = new AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                ActionSelectNextMeridian, "下一个经络");
-            ViewCompat.SetAccessibilityDelegate(_meridianSpinner, new NextMeridianDelegate(this));
-            
-            // 添加"上一个经络"无障碍动作
-            var previousMeridianAction = new AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                ActionSelectPreviousMeridian, "上一个经络");
-        }
-        
-        private void SetupAcupointSpinnerAccessibility()
-        {
-            if (_acupointSpinner == null) return;
-            
-            ViewCompat.SetAccessibilityDelegate(_acupointSpinner, new NextAcupointDelegate(this));
-        }
-        
-        public void SelectNextMeridian()
-        {
-            if (_meridianSpinner == null || _availableBanks.Count == 0) return;
-            
-            int currentPosition = _meridianSpinner.SelectedItemPosition;
-            int nextPosition = (currentPosition + 1) % _availableBanks.Count;
-            _meridianSpinner.SetSelection(nextPosition);
-            
-        }
-        
-        public void SelectPreviousMeridian()
-        {
-            if (_meridianSpinner == null || _availableBanks.Count == 0) return;
-            
-            int currentPosition = _meridianSpinner.SelectedItemPosition;
-            int previousPosition = currentPosition - 1;
-            if (previousPosition < 0)
-                previousPosition = _availableBanks.Count - 1;
-            
-            _meridianSpinner.SetSelection(previousPosition);
-            
-        }
-        
-        public void SelectNextAcupoint()
-        {
-            if (_acupointSpinner == null || _acupointNames.Count == 0) return;
-            
-            int currentPosition = _acupointSpinner.SelectedItemPosition;
-            int nextPosition = (currentPosition + 1) % _acupointNames.Count;
-            _acupointSpinner.SetSelection(nextPosition);
-            
-        }
-        
-        public void SelectPreviousAcupoint()
-        {
-            if (_acupointSpinner == null || _acupointNames.Count == 0) return;
-            
-            int currentPosition = _acupointSpinner.SelectedItemPosition;
-            int previousPosition = currentPosition - 1;
-            if (previousPosition < 0)
-                previousPosition = _acupointNames.Count - 1;
-            
-            _acupointSpinner.SetSelection(previousPosition);
-            
-        }
-    }
-    
-    // 经络选择器无障碍委托
-    public class NextMeridianDelegate : AccessibilityDelegateCompat
-    {
-        private readonly AcupointStudyActivity _activity;
-        
-        public NextMeridianDelegate(AcupointStudyActivity activity)
-        {
-            _activity = activity;
-        }
-        
-        public override void OnInitializeAccessibilityNodeInfo(View? host, AccessibilityNodeInfoCompat? info)
-        {
-            base.OnInitializeAccessibilityNodeInfo(host, info);
-            
-            if (info != null)
-            {
-                info.AddAction(new AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    AcupointStudyActivity.ActionSelectNextMeridian, "下一个经络"));
-                info.AddAction(new AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    AcupointStudyActivity.ActionSelectPreviousMeridian, "上一个经络"));
-            }
-        }
-        
-        public override bool PerformAccessibilityAction(View? host, int action, Bundle? args)
-        {
-            if (action == AcupointStudyActivity.ActionSelectNextMeridian)
-            {
-                _activity.SelectNextMeridian();
-                return true;
-            }
-            else if (action == AcupointStudyActivity.ActionSelectPreviousMeridian)
-            {
-                _activity.SelectPreviousMeridian();
-                return true;
-            }
-            return base.PerformAccessibilityAction(host, action, args);
-        }
-    }
-    
-    // 穴位选择器无障碍委托
-    public class NextAcupointDelegate : AccessibilityDelegateCompat
-    {
-        private readonly AcupointStudyActivity _activity;
-        
-        public NextAcupointDelegate(AcupointStudyActivity activity)
-        {
-            _activity = activity;
-        }
-        
-        public override void OnInitializeAccessibilityNodeInfo(View? host, AccessibilityNodeInfoCompat? info)
-        {
-            base.OnInitializeAccessibilityNodeInfo(host, info);
-            
-            if (info != null)
-            {
-                info.AddAction(new AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    AcupointStudyActivity.ActionSelectNextAcupoint, "下一个穴位"));
-                info.AddAction(new AccessibilityNodeInfoCompat.AccessibilityActionCompat(
-                    AcupointStudyActivity.ActionSelectPreviousAcupoint, "上一个穴位"));
-            }
-        }
-        
-        public override bool PerformAccessibilityAction(View? host, int action, Bundle? args)
-        {
-            if (action == AcupointStudyActivity.ActionSelectNextAcupoint)
-            {
-                _activity.SelectNextAcupoint();
-                return true;
-            }
-            else if (action == AcupointStudyActivity.ActionSelectPreviousAcupoint)
-            {
-                _activity.SelectPreviousAcupoint();
-                return true;
-            }
-            return base.PerformAccessibilityAction(host, action, args);
         }
     }
 }
