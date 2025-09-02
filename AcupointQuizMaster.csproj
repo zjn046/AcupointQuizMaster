@@ -6,10 +6,10 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationId>com.acupoint.quizmaster</ApplicationId>
-    <ApplicationVersion>7</ApplicationVersion>
-    <ApplicationDisplayVersion>2.4.1</ApplicationDisplayVersion>
+    <ApplicationVersion>8</ApplicationVersion>
+    <ApplicationDisplayVersion>2.4.2</ApplicationDisplayVersion>
     <ApplicationTitle>穴位测验大师</ApplicationTitle>
-    <AndroidLinkMode>None</AndroidLinkMode>
+    <AndroidLinkMode>SdkOnly</AndroidLinkMode>
     <AndroidDexTool>d8</AndroidDexTool>
     <RunAOTCompilation>false</RunAOTCompilation>
     <AndroidManifest>AndroidManifest.xml</AndroidManifest>
@@ -19,21 +19,21 @@
     <AndroidUseAssemblyStore>false</AndroidUseAssemblyStore>
     <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <!-- 稳定配置，避免闪退 -->
-    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
-    <AndroidLinkResources>false</AndroidLinkResources>
+    <!-- 优化配置，减小APK体积 -->
+    <AndroidEnableSGenConcurrent>false</AndroidEnableSGenConcurrent>
+    <AndroidLinkResources>true</AndroidLinkResources>
     <AndroidDexToolExtraArguments>--min-api 24</AndroidDexToolExtraArguments>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
-    <PublishTrimmed>false</PublishTrimmed>
+    <PublishTrimmed>true</PublishTrimmed>
     <TrimMode>partial</TrimMode>
-    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
     <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
-    <!-- 保守的调试配置 -->
+    <!-- 压缩优化配置 -->
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <AndroidLinkTool>r8</AndroidLinkTool>
-    <AndroidEnableProguard>false</AndroidEnableProguard>
+    <AndroidEnableProguard>true</AndroidEnableProguard>
     <!-- Android签名配置已移除，发布时需要手动配置 -->
     <!-- <AndroidKeyStore>true</AndroidKeyStore> -->
     <!-- <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore> -->
