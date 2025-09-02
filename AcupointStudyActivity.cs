@@ -9,6 +9,7 @@ using Android.Views;
 using Android.Views.Accessibility;
 using AcupointQuizMaster.Models;
 using AcupointQuizMaster.Services;
+using SystemException = System.Exception;
 
 namespace AcupointQuizMaster
 {
@@ -48,7 +49,7 @@ namespace AcupointQuizMaster
                 LoadAvailableBanks();
                 SetupAccessibilityFeatures();
             }
-            catch (Exception ex)
+            catch (SystemException ex)
             {
                 ShowError("初始化失败", ex.Message);
                 Finish();
@@ -68,7 +69,7 @@ namespace AcupointQuizMaster
             
             if (_isAccessibilityEnabled)
             {
-                System.Diagnostics.Debug.WriteLine("无障碍功能已启用");
+                System.Diagnostics.Debug.WriteLine("TalkBack无障碍功能已启用，开始设置无障碍动作");
             }
         }
 
@@ -117,7 +118,7 @@ namespace AcupointQuizMaster
                             _meridianNames.Add(bankInfo.Name);
                         }
                     }
-                    catch (Exception ex)
+                    catch (SystemException ex)
                     {
                         System.Diagnostics.Debug.WriteLine($"解析题库 {fileName} 失败: {ex.Message}");
                     }
@@ -135,10 +136,10 @@ namespace AcupointQuizMaster
                 // 重新设置无障碍动作（因为数据已加载）
                 if (_isAccessibilityEnabled)
                 {
-                    System.Diagnostics.Debug.WriteLine($"题库加载完成，共{_availableBanks.Count}个题库");
+                    SetupMeridianAccessibilityActions();
                 }
             }
-            catch (Exception ex)
+            catch (SystemException ex)
             {
                 ShowError("加载题库失败", ex.Message);
             }
@@ -173,7 +174,7 @@ namespace AcupointQuizMaster
                 // 清空详情显示
                 _acupointDetailText?.SetText("请选择要学习的穴位", TextView.BufferType.Normal);
             }
-            catch (Exception ex)
+            catch (SystemException ex)
             {
                 ShowError("经络选择失败", ex.Message);
             }
@@ -196,7 +197,7 @@ namespace AcupointQuizMaster
             // 重新设置穴位的无障碍动作
             if (_isAccessibilityEnabled)
             {
-                System.Diagnostics.Debug.WriteLine($"穴位选择器更新，共{_acupointNames.Count}个穴位");
+                SetupAcupointAccessibilityActions();
             }
         }
 
@@ -220,7 +221,7 @@ namespace AcupointQuizMaster
                     ShowAcupointDetails(selectedAcupointName, acupointInfo);
                 }
             }
-            catch (Exception ex)
+            catch (SystemException ex)
             {
                 ShowError("穴位选择失败", ex.Message);
             }
@@ -273,6 +274,100 @@ namespace AcupointQuizMaster
         private void OnBackClick(object? sender, EventArgs e)
         {
             Finish();
+        }
+
+        // 设置经络选择器的无障碍支持
+        private void SetupMeridianAccessibilityActions()
+        {
+            if (_meridianSpinner == null || !_isAccessibilityEnabled || _meridianNames.Count == 0) return;
+            
+            try
+            {
+                // 更新内容描述，包含所有可选经络的信息和选择指令  
+                var availableMeridians = string.Join("，", _meridianNames);
+                _meridianSpinner.ContentDescription = $"选择要学习的经络。可用经络有：{availableMeridians}。使用上下滑动切换选择，双击确认";
+                
+                // 设置为可聚焦，确保TalkBack可以找到
+                _meridianSpinner.Focusable = true;
+                _meridianSpinner.ImportantForAccessibility = ImportantForAccessibility.Yes;
+                
+                // 设置为可点击，启用交互功能
+                _meridianSpinner.Clickable = true;
+                
+                System.Diagnostics.Debug.WriteLine($"已为经络选择器设置TalkBack支持，包含 {_meridianNames.Count} 个经络");
+            }
+            catch (SystemException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"设置经络无障碍支持失败: {ex.Message}");
+            }
+        }
+
+        // 设置穴位选择器的无障碍支持
+        private void SetupAcupointAccessibilityActions()
+        {
+            if (_acupointSpinner == null || !_isAccessibilityEnabled || _acupointNames.Count == 0) return;
+            
+            try
+            {
+                // 更新内容描述，包含所有可选穴位的信息和选择指令
+                var availableAcupoints = string.Join("，", _acupointNames);
+                _acupointSpinner.ContentDescription = $"选择要学习的穴位。当前经络：{_selectedBank?.Name}。可用穴位有：{availableAcupoints}。使用上下滑动切换选择，双击确认";
+                
+                // 设置为可聚焦，确保TalkBack可以找到
+                _acupointSpinner.Focusable = true;  
+                _acupointSpinner.ImportantForAccessibility = ImportantForAccessibility.Yes;
+                
+                // 设置为可点击，启用交互功能
+                _acupointSpinner.Clickable = true;
+                
+                System.Diagnostics.Debug.WriteLine($"已为穴位选择器设置TalkBack支持，包含 {_acupointNames.Count} 个穴位");
+            }
+            catch (SystemException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"设置穴位无障碍支持失败: {ex.Message}");
+            }
+        }
+
+        // 经络选择方法
+        public void SelectMeridian(int index)
+        {
+            if (_meridianSpinner == null || index < 0 || index >= _availableBanks.Count) return;
+            
+            try
+            {
+                _meridianSpinner.SetSelection(index);
+                
+                // 发出无障碍提示
+                var selectedName = _meridianNames[index];
+                _meridianSpinner.AnnounceForAccessibility($"已选择经络：{selectedName}");
+                
+                System.Diagnostics.Debug.WriteLine($"通过TalkBack动作选择了经络：{selectedName}");
+            }
+            catch (SystemException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"选择经络失败: {ex.Message}");
+            }
+        }
+
+        // 穴位选择方法
+        public void SelectAcupoint(int index)
+        {
+            if (_acupointSpinner == null || index < 0 || index >= _acupointNames.Count) return;
+            
+            try
+            {
+                _acupointSpinner.SetSelection(index);
+                
+                // 发出无障碍提示
+                var selectedName = _acupointNames[index];
+                _acupointSpinner.AnnounceForAccessibility($"已选择穴位：{selectedName}");
+                
+                System.Diagnostics.Debug.WriteLine($"通过TalkBack动作选择了穴位：{selectedName}");
+            }
+            catch (SystemException ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"选择穴位失败: {ex.Message}");
+            }
         }
 
         private void ShowError(string title, string message)
