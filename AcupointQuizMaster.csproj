@@ -19,21 +19,21 @@
     <AndroidUseAssemblyStore>false</AndroidUseAssemblyStore>
     <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <!-- 优化配置，减小APK体积 -->
-    <AndroidEnableSGenConcurrent>false</AndroidEnableSGenConcurrent>
-    <AndroidLinkResources>true</AndroidLinkResources>
+    <!-- 平衡配置 - 既不过度优化也不过度膨胀 -->
+    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+    <AndroidLinkResources>false</AndroidLinkResources>
     <AndroidDexToolExtraArguments>--min-api 24</AndroidDexToolExtraArguments>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>partial</TrimMode>
-    <EmbedAssembliesIntoApk>false</EmbedAssembliesIntoApk>
-    <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
+    <PublishTrimmed>false</PublishTrimmed>
+    <TrimMode>none</TrimMode>
+    <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
+    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
-    <!-- 压缩优化配置 -->
+    <!-- 保守配置避免构建错误 -->
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
     <AndroidLinkTool>r8</AndroidLinkTool>
-    <AndroidEnableProguard>true</AndroidEnableProguard>
+    <AndroidEnableProguard>false</AndroidEnableProguard>
     <!-- Android签名配置已移除，发布时需要手动配置 -->
     <!-- <AndroidKeyStore>true</AndroidKeyStore> -->
     <!-- <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore> -->
