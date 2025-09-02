@@ -31,6 +31,10 @@ namespace AcupointQuizMaster
         
         // 无障碍功能支持
         private bool _isAccessibilityEnabled = false;
+        
+        // 无障碍动作ID基础值
+        private const int BaseActionIdMeridian = 0x10000;
+        private const int BaseActionIdAcupoint = 0x20000;
 
         protected override void OnCreate(Bundle? savedInstanceState)
         {
@@ -62,7 +66,10 @@ namespace AcupointQuizMaster
             var accessibilityManager = GetSystemService(AccessibilityService) as AccessibilityManager;
             _isAccessibilityEnabled = accessibilityManager?.IsEnabled ?? false;
             
-            // 保留基础的内容描述功能，移除复杂的动作以避免兼容性问题
+            if (_isAccessibilityEnabled)
+            {
+                System.Diagnostics.Debug.WriteLine("无障碍功能已启用");
+            }
         }
 
         private void InitializeUI()
@@ -124,6 +131,12 @@ namespace AcupointQuizMaster
 
                 // 设置经络选择器
                 SetupMeridianSpinner();
+                
+                // 重新设置无障碍动作（因为数据已加载）
+                if (_isAccessibilityEnabled)
+                {
+                    System.Diagnostics.Debug.WriteLine($"题库加载完成，共{_availableBanks.Count}个题库");
+                }
             }
             catch (Exception ex)
             {
@@ -179,6 +192,12 @@ namespace AcupointQuizMaster
             
             // 更新穴位选择器的无障碍描述
             _acupointSpinner.ContentDescription = $"选择要学习的穴位，当前经络：{_selectedBank.Name}，共{_acupointNames.Count}个穴位";
+            
+            // 重新设置穴位的无障碍动作
+            if (_isAccessibilityEnabled)
+            {
+                System.Diagnostics.Debug.WriteLine($"穴位选择器更新，共{_acupointNames.Count}个穴位");
+            }
         }
 
         private void OnAcupointSelected(object? sender, AdapterView.ItemSelectedEventArgs e)

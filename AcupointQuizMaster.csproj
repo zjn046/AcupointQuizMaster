@@ -19,12 +19,12 @@
     <AndroidUseAssemblyStore>false</AndroidUseAssemblyStore>
     <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <!-- 优化APK大小的配置 -->
-    <AndroidEnableSGenConcurrent>false</AndroidEnableSGenConcurrent>
-    <AndroidLinkResources>true</AndroidLinkResources>
+    <!-- 保守的稳定配置 -->
+    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
+    <AndroidLinkResources>false</AndroidLinkResources>
     <AndroidDexToolExtraArguments>--min-api 24</AndroidDexToolExtraArguments>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
-    <PublishTrimmed>true</PublishTrimmed>
+    <PublishTrimmed>false</PublishTrimmed>
     <TrimMode>partial</TrimMode>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
     <!-- Android签名配置已移除，发布时需要手动配置 -->
