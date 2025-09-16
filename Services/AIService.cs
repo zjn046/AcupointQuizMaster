@@ -417,6 +417,7 @@ namespace AcupointQuizMaster.Services
         public void Dispose()
         {
             _httpClient?.Dispose();
+            GC.SuppressFinalize(this);
         }
     }
 }

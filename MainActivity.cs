@@ -25,7 +25,6 @@ public class MainActivity : Activity
     private TextView? _statusText;
     private EditText? _currentItemText;
     private Button? _drawButton;
-    private Button? _startButton;
     private Button? _correctButton;
     private Button? _wrongButton;
     private Button? _aiEvaluationButton;
@@ -34,6 +33,13 @@ public class MainActivity : Activity
     private Button? _resultButton;
     private Button? _helpButton;
     private Button? _settingsButton;
+
+    // 新增的抽穴位配置UI控件
+    private LinearLayout? _quizConfigLayout;
+    private TextView? _bankSelectionLabel;
+    private SeekBar? _bankSelectionSeekBar;
+    private EditText? _quantityEditText;
+    private Button? _startQuizButton;
 
     // 状态管理
     private QuizState _currentState = QuizState.Preparation;
@@ -54,6 +60,9 @@ public class MainActivity : Activity
             InitializeServices();
             InitializeUI();
             LoadAvailableBanks();
+            
+            // 确保初始状态是Preparation
+            _currentState = QuizState.Preparation;
             UpdateUIState();
         }
         catch (Exception ex)
@@ -79,7 +88,6 @@ public class MainActivity : Activity
         _statusText = FindViewById<TextView>(Resource.Id.statusText);
         _currentItemText = FindViewById<EditText>(Resource.Id.currentItemText);
         _drawButton = FindViewById<Button>(Resource.Id.drawButton);
-        _startButton = FindViewById<Button>(Resource.Id.startButton);
         _correctButton = FindViewById<Button>(Resource.Id.correctButton);
         _wrongButton = FindViewById<Button>(Resource.Id.wrongButton);
         _aiEvaluationButton = FindViewById<Button>(Resource.Id.aiEvaluationButton);
@@ -89,9 +97,15 @@ public class MainActivity : Activity
         _helpButton = FindViewById<Button>(Resource.Id.helpButton);
         _settingsButton = FindViewById<Button>(Resource.Id.settingsButton);
 
+        // 新增的抽穴位配置UI控件
+        _quizConfigLayout = FindViewById<LinearLayout>(Resource.Id.quizConfigLayout);
+        _bankSelectionLabel = FindViewById<TextView>(Resource.Id.bankSelectionLabel);
+        _bankSelectionSeekBar = FindViewById<SeekBar>(Resource.Id.bankSelectionSeekBar);
+        _quantityEditText = FindViewById<EditText>(Resource.Id.quantityEditText);
+        _startQuizButton = FindViewById<Button>(Resource.Id.startQuizButton);
+
         // 绑定事件
         if (_drawButton != null) _drawButton.Click += OnDrawClick;
-        if (_startButton != null) _startButton.Click += OnStartClick;
         if (_correctButton != null) _correctButton.Click += OnCorrectClick;
         if (_wrongButton != null) _wrongButton.Click += OnWrongClick;
         if (_aiEvaluationButton != null) _aiEvaluationButton.Click += OnAIEvaluationClick;
@@ -100,6 +114,24 @@ public class MainActivity : Activity
         if (_resultButton != null) _resultButton.Click += OnResultClick;
         if (_helpButton != null) _helpButton.Click += OnHelpClick;
         if (_settingsButton != null) _settingsButton.Click += OnSettingsClick;
+
+        // 新增控件的事件绑定
+        if (_startQuizButton != null) _startQuizButton.Click += OnStartQuizClick;
+        if (_bankSelectionSeekBar != null) _bankSelectionSeekBar.ProgressChanged += OnBankSelectionChanged;
+        
+        // 设置题库选择的无障碍代理
+        if (_bankSelectionLabel != null)
+        {
+            _bankSelectionLabel.Click += OnBankSelectionLabelClick;
+            var bankDelegate = new AdjustableViewAccessibilityDelegate(
+                _bankSelectionLabel,
+                () => IncrementBankSelection(),
+                () => DecrementBankSelection(),
+                () => _bankSelectionLabel.Text ?? "",
+                "题库选择"
+            );
+            _bankSelectionLabel.SetAccessibilityDelegate(bankDelegate);
+        }
     }
 
     private void LoadAvailableBanks()
@@ -131,6 +163,11 @@ public class MainActivity : Activity
             {
                 ShowError("未找到题库", "请确保在 assets 目录中有有效的题库文件。");
             }
+            else
+            {
+                // 初始化题库选择控件
+                SetupBankSelection();
+            }
         }
         catch (Exception ex)
         {
@@ -138,7 +175,26 @@ public class MainActivity : Activity
         }
     }
 
-    private async void OnDrawClick(object? sender, EventArgs e)
+    private void SetupBankSelection()
+    {
+        if (_bankSelectionSeekBar == null || _bankSelectionLabel == null) return;
+
+        if (_availableBanks.Count == 0)
+        {
+            _bankSelectionSeekBar.Max = 0;
+            _bankSelectionSeekBar.Progress = 0;
+            _bankSelectionSeekBar.Enabled = false;
+            _bankSelectionLabel.Text = "(无题库)";
+            return;
+        }
+
+        _bankSelectionSeekBar.Max = _availableBanks.Count - 1;
+        _bankSelectionSeekBar.Progress = 0;
+        _bankSelectionSeekBar.Enabled = true;
+        _bankSelectionLabel.Text = _availableBanks[0].Name;
+    }
+
+    private void OnDrawClick(object? sender, EventArgs e)
     {
         try
         {
@@ -148,41 +204,16 @@ public class MainActivity : Activity
                 return;
             }
 
-            var selectedBank = await ShowBankSelectionDialog();
-            if (selectedBank == null) return;
-
-            _currentBank = selectedBank;
-            _quizManager?.SetCurrentBank(selectedBank);
-
-            var remainingCount = _quizManager?.GetRemainingCount(selectedBank) ?? 0;
-            if (remainingCount == 0)
+            // 切换到抽穴位配置界面
+            _currentState = QuizState.Ready;
+            UpdateUIState();
+            
+            // 设置默认数量为第一个题库的剩余数量
+            if (_availableBanks.Count > 0)
             {
-                var shouldClear = await ShowYesNoDialog("该经络已抽完", $"经络【{selectedBank.Name}】已经全部答完，是否清除标记重新开始？");
-                if (shouldClear)
-                {
-                    // 清除该经络的标记
-                    _quizManager?.ClearUsedItems(selectedBank.FileName);
-                    remainingCount = selectedBank.TotalCount; // 重新计算剩余数量
-                }
-                else
-                {
-                    return; // 用户选择不清除，直接返回
-                }
-            }
-
-            var quantity = await ShowQuantityInputDialog(remainingCount);
-            if (quantity <= 0) return;
-
-            var success = _quizManager?.StartQuiz(quantity) ?? false;
-            if (success)
-            {
-                _currentState = QuizState.Ready;
-                UpdateUIState();
-                UpdateStatus();
-            }
-            else
-            {
-                ShowError("开始失败", "无法开始测验，请重试。");
+                var firstBank = _availableBanks[0];
+                var remainingCount = _quizManager?.GetRemainingCount(firstBank) ?? firstBank.TotalCount;
+                _quantityEditText?.SetText(remainingCount.ToString(), TextView.BufferType.Editable);
             }
         }
         catch (Exception ex)
@@ -191,25 +222,133 @@ public class MainActivity : Activity
         }
     }
 
-    private void OnStartClick(object? sender, EventArgs e)
+    // 新增的事件处理方法
+    private void OnBankSelectionChanged(object? sender, SeekBar.ProgressChangedEventArgs e)
     {
         try
         {
-            if (_quizManager == null) return;
+            if (!e.FromUser || e.Progress < 0 || e.Progress >= _availableBanks.Count) return;
 
-            var nextItem = _quizManager.GetNextItem();
-            if (nextItem != null)
+            var selectedBank = _availableBanks[e.Progress];
+            _bankSelectionLabel?.SetText(selectedBank.Name, TextView.BufferType.Normal);
+            
+            // 更新数量输入框的默认值
+            var remainingCount = _quizManager?.GetRemainingCount(selectedBank) ?? selectedBank.TotalCount;
+            _quantityEditText?.SetText(remainingCount.ToString(), TextView.BufferType.Editable);
+        }
+        catch (Exception ex)
+        {
+            ShowError("题库选择失败", ex.Message);
+        }
+    }
+
+    private void OnBankSelectionLabelClick(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (_availableBanks.Count == 0) return;
+            ShowBankSelectionDialog();
+        }
+        catch (Exception ex)
+        {
+            ShowError("选择题库失败", ex.Message);
+        }
+    }
+
+    private async void OnStartQuizClick(object? sender, EventArgs e)
+    {
+        try
+        {
+            var selectedIndex = _bankSelectionSeekBar?.Progress ?? 0;
+            if (selectedIndex < 0 || selectedIndex >= _availableBanks.Count)
             {
-                _currentState = QuizState.Quiz;
-                _currentItemText?.SetText(nextItem, TextView.BufferType.Normal);
-                UpdateUIState();
-                UpdateStatus();
+                ShowError("选择错误", "请选择有效的题库。");
+                return;
+            }
+
+            var selectedBank = _availableBanks[selectedIndex];
+            var quantityText = _quantityEditText?.Text?.Trim() ?? "";
+            
+            if (!int.TryParse(quantityText, out var quantity) || quantity <= 0)
+            {
+                ShowError("数量错误", "请输入有效的正整数数量。");
+                return;
+            }
+
+            var remainingCount = _quizManager?.GetRemainingCount(selectedBank) ?? 0;
+            if (remainingCount == 0)
+            {
+                var shouldClear = await ShowYesNoDialog("该经络已抽完", $"经络【{selectedBank.Name}】已经全部答完，是否清除标记重新开始？");
+                if (shouldClear)
+                {
+                    _quizManager?.ClearUsedItems(selectedBank.FileName);
+                    remainingCount = selectedBank.TotalCount;
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            quantity = Math.Min(quantity, remainingCount);
+            _currentBank = selectedBank;
+            _quizManager?.SetCurrentBank(selectedBank);
+
+            var success = _quizManager?.StartQuiz(quantity) ?? false;
+            if (success)
+            {
+                // 直接开始第一题，切换到答题界面
+                var nextItem = _quizManager.GetNextItem();
+                if (nextItem != null)
+                {
+                    _currentState = QuizState.Quiz;
+                    _currentItemText?.SetText(nextItem, TextView.BufferType.Normal);
+                    UpdateUIState();
+                    UpdateStatus();
+                }
+                else
+                {
+                    ShowError("开始失败", "无法获取题目，请重试。");
+                }
+            }
+            else
+            {
+                ShowError("开始失败", "无法开始测验，请重试。");
             }
         }
         catch (Exception ex)
         {
             ShowError("开始测验失败", ex.Message);
         }
+    }
+
+    // 题库递增/递减方法
+    private bool IncrementBankSelection()
+    {
+        if (_bankSelectionSeekBar == null || _availableBanks.Count == 0) return false;
+        
+        var currentProgress = _bankSelectionSeekBar.Progress;
+        if (currentProgress < _availableBanks.Count - 1)
+        {
+            _bankSelectionSeekBar.Progress = currentProgress + 1;
+            OnBankSelectionChanged(_bankSelectionSeekBar, new SeekBar.ProgressChangedEventArgs(_bankSelectionSeekBar, currentProgress + 1, true));
+            return true;
+        }
+        return false;
+    }
+
+    private bool DecrementBankSelection()
+    {
+        if (_bankSelectionSeekBar == null || _availableBanks.Count == 0) return false;
+        
+        var currentProgress = _bankSelectionSeekBar.Progress;
+        if (currentProgress > 0)
+        {
+            _bankSelectionSeekBar.Progress = currentProgress - 1;
+            OnBankSelectionChanged(_bankSelectionSeekBar, new SeekBar.ProgressChangedEventArgs(_bankSelectionSeekBar, currentProgress - 1, true));
+            return true;
+        }
+        return false;
     }
 
     private async void OnCorrectClick(object? sender, EventArgs e)
@@ -399,7 +538,8 @@ public class MainActivity : Activity
 
     private void OnSettingsClick(object? sender, EventArgs e)
     {
-        var intent = new Intent(this, typeof(SettingsActivity));        StartActivity(intent);
+        var intent = new Intent(this, typeof(SettingsActivity));
+        StartActivity(intent);
     }
 
     private async Task ProcessNextQuestion()
@@ -449,6 +589,7 @@ public class MainActivity : Activity
                     if (_settingsButton != null) _settingsButton.Enabled = true;
                     
                     // 隐藏抽穴位相关界面
+                    if (_quizConfigLayout != null) _quizConfigLayout.Visibility = ViewStates.Gone;
                     if (currentItemLayout != null) currentItemLayout.Visibility = ViewStates.Gone;
                     if (quizButtonsLayout != null) quizButtonsLayout.Visibility = ViewStates.Gone;
                     if (detailButtonsLayout != null) detailButtonsLayout.Visibility = ViewStates.Gone;
@@ -457,31 +598,26 @@ public class MainActivity : Activity
                     break;
 
                 case QuizState.Ready:
-                    // 抽穴位界面：隐藏主界面按钮，显示抽穴位相关界面
+                    // 抽穴位配置界面：只显示配置界面
                     if (mainButtonsLayout != null) mainButtonsLayout.Visibility = ViewStates.Gone;
-                    if (currentItemLayout != null) currentItemLayout.Visibility = ViewStates.Visible;
-                    if (quizButtonsLayout != null) quizButtonsLayout.Visibility = ViewStates.Visible;
-                    if (detailButtonsLayout != null) detailButtonsLayout.Visibility = ViewStates.Visible;
+                    if (_quizConfigLayout != null) _quizConfigLayout.Visibility = ViewStates.Visible;
+                    if (currentItemLayout != null) currentItemLayout.Visibility = ViewStates.Gone;
+                    if (quizButtonsLayout != null) quizButtonsLayout.Visibility = ViewStates.Gone;
+                    if (detailButtonsLayout != null) detailButtonsLayout.Visibility = ViewStates.Gone;
                     
-                    // 抽穴位按钮状态
-                    if (_startButton != null) _startButton.Enabled = true;
-                    if (_correctButton != null) _correctButton.Enabled = false;
-                    if (_wrongButton != null) _wrongButton.Enabled = false;
-                    if (_viewDetailButton != null) _viewDetailButton.Enabled = false;
-                    if (_resultButton != null) _resultButton.Enabled = false;
-                    if (_resultButton != null) _resultButton.Visibility = ViewStates.Gone;
-                    Title = "抽穴位练习";
+                    if (_statusText != null) _statusText.SetText("请选择题库和数量，然后开始抽穴位", TextView.BufferType.Normal);
+                    Title = "抽穴位配置";
                     break;
 
                 case QuizState.Quiz:
-                    // 抽穴位测试中：隐藏主界面按钮
+                    // 抽穴位测试中：只显示答题界面
                     if (mainButtonsLayout != null) mainButtonsLayout.Visibility = ViewStates.Gone;
+                    if (_quizConfigLayout != null) _quizConfigLayout.Visibility = ViewStates.Gone;
                     if (currentItemLayout != null) currentItemLayout.Visibility = ViewStates.Visible;
                     if (quizButtonsLayout != null) quizButtonsLayout.Visibility = ViewStates.Visible;
                     if (detailButtonsLayout != null) detailButtonsLayout.Visibility = ViewStates.Visible;
                     
                     // 抽穴位按钮状态
-                    if (_startButton != null) _startButton.Enabled = false;
                     if (_correctButton != null) _correctButton.Enabled = true;
                     if (_wrongButton != null) _wrongButton.Enabled = true;
                     if (_viewDetailButton != null) _viewDetailButton.Enabled = true;
@@ -492,14 +628,14 @@ public class MainActivity : Activity
                     break;
 
                 case QuizState.Finished:
-                    // 抽穴位完成：隐藏主界面按钮，显示结果
+                    // 抽穴位完成：只显示结果界面
                     if (mainButtonsLayout != null) mainButtonsLayout.Visibility = ViewStates.Gone;
+                    if (_quizConfigLayout != null) _quizConfigLayout.Visibility = ViewStates.Gone;
                     if (currentItemLayout != null) currentItemLayout.Visibility = ViewStates.Visible;
                     if (quizButtonsLayout != null) quizButtonsLayout.Visibility = ViewStates.Visible;
                     if (detailButtonsLayout != null) detailButtonsLayout.Visibility = ViewStates.Visible;
                     
                     // 抽穴位按钮状态
-                    if (_startButton != null) _startButton.Enabled = false;
                     if (_correctButton != null) _correctButton.Enabled = false;
                     if (_wrongButton != null) _wrongButton.Enabled = false;
                     if (_viewDetailButton != null) _viewDetailButton.Enabled = false;
@@ -510,8 +646,9 @@ public class MainActivity : Activity
                     break;
 
                 case QuizState.AIEvaluation:
-                    // AI穴位测评界面：隐藏主界面按钮和抽穴位界面
+                    // AI穴位测评界面：隐藏所有界面
                     if (mainButtonsLayout != null) mainButtonsLayout.Visibility = ViewStates.Gone;
+                    if (_quizConfigLayout != null) _quizConfigLayout.Visibility = ViewStates.Gone;
                     if (currentItemLayout != null) currentItemLayout.Visibility = ViewStates.Gone;
                     if (quizButtonsLayout != null) quizButtonsLayout.Visibility = ViewStates.Gone;
                     if (detailButtonsLayout != null) detailButtonsLayout.Visibility = ViewStates.Gone;
@@ -871,8 +1008,14 @@ public class MainActivity : Activity
                 break;
             
             case QuizState.Ready:
+                // 抽穴位配置状态，返回主界面
+                _currentState = QuizState.Preparation;
+                _currentBank = null;
+                UpdateUIState();
+                break;
+
             case QuizState.Finished:
-                // 抽穴位准备/完成状态，返回主界面
+                // 抽穴位完成状态，返回主界面
                 _currentState = QuizState.Preparation;
                 _currentBank = null;
                 UpdateUIState();

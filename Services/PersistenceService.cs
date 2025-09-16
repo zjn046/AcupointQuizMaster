@@ -19,7 +19,16 @@ namespace AcupointQuizMaster.Services
 
         public PersistenceService(Context context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
+        }
+
+        /// <summary>
+        /// 获取应用程序文件目录路径
+        /// </summary>
+        private string GetFilesDirectory()
+        {
+            return _context.FilesDir?.AbsolutePath 
+                ?? throw new InvalidOperationException("Unable to access application files directory");
         }
 
         /// <summary>
@@ -30,7 +39,7 @@ namespace AcupointQuizMaster.Services
         {
             try
             {
-                var configPath = Path.Combine(_context.FilesDir?.AbsolutePath ?? "", _configFileName);
+                var configPath = Path.Combine(GetFilesDirectory(), _configFileName);
                 
                 if (!File.Exists(configPath))
                 {
@@ -68,7 +77,7 @@ namespace AcupointQuizMaster.Services
         {
             try
             {
-                var configPath = Path.Combine(_context.FilesDir?.AbsolutePath ?? "", _configFileName);
+                var configPath = Path.Combine(GetFilesDirectory(), _configFileName);
                 
                 var config = new ConfigData
                 {
@@ -164,7 +173,7 @@ namespace AcupointQuizMaster.Services
         {
             try
             {
-                var settingsPath = Path.Combine(_context.FilesDir?.AbsolutePath ?? "", _settingsFileName);
+                var settingsPath = Path.Combine(GetFilesDirectory(), _settingsFileName);
                 
                 if (!File.Exists(settingsPath))
                 {
@@ -192,7 +201,7 @@ namespace AcupointQuizMaster.Services
         {
             try
             {
-                var settingsPath = Path.Combine(_context.FilesDir?.AbsolutePath ?? "", _settingsFileName);
+                var settingsPath = Path.Combine(GetFilesDirectory(), _settingsFileName);
                 
                 var jsonContent = JsonConvert.SerializeObject(settings, Formatting.Indented);
                 File.WriteAllText(settingsPath, jsonContent, Encoding.UTF8);

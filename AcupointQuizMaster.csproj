@@ -7,33 +7,44 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <ApplicationId>com.acupoint.quizmaster</ApplicationId>
     <ApplicationVersion>9</ApplicationVersion>
-    <ApplicationDisplayVersion>2.2.0.0</ApplicationDisplayVersion>
+    <ApplicationDisplayVersion>2.3.0.0</ApplicationDisplayVersion>
     <ApplicationTitle>穴位测验大师</ApplicationTitle>
-    <AndroidLinkMode>Full</AndroidLinkMode>
+    <AndroidLinkMode>None</AndroidLinkMode>
     <AndroidDexTool>d8</AndroidDexTool>
-    <RunAOTCompilation>true</RunAOTCompilation>
+    <RunAOTCompilation>false</RunAOTCompilation>
     <AndroidManifest>AndroidManifest.xml</AndroidManifest>
     <AndroidUseAapt2>true</AndroidUseAapt2>
     <AndroidEnableDesugar>false</AndroidEnableDesugar>
     <AndroidGenerateJniMarshalMethods>false</AndroidGenerateJniMarshalMethods>
-    <AndroidUseAssemblyStore>true</AndroidUseAssemblyStore>
+    <AndroidUseAssemblyStore>false</AndroidUseAssemblyStore>
     <AndroidIncludeDebugSymbols>false</AndroidIncludeDebugSymbols>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
-    <!-- 平衡配置 - 既不过度优化也不过度膨胀 -->
-    <AndroidEnableSGenConcurrent>true</AndroidEnableSGenConcurrent>
-    <AndroidLinkResources>true</AndroidLinkResources>
-    <AndroidDexToolExtraArguments>--min-api 24</AndroidDexToolExtraArguments>
+    <!-- 强制兼容性配置 - 彻底修复DEX V37问题 -->
+    <AndroidEnableSGenConcurrent>false</AndroidEnableSGenConcurrent>
+    <AndroidLinkResources>false</AndroidLinkResources>
+    <AndroidDexToolExtraArguments>--min-api 24 --dex --force-enable-assertions</AndroidDexToolExtraArguments>
     <RuntimeIdentifiers>android-arm64</RuntimeIdentifiers>
-    <PublishTrimmed>true</PublishTrimmed>
-    <TrimMode>full</TrimMode>
+    <PublishTrimmed>false</PublishTrimmed>
+    <TrimMode>none</TrimMode>
     <EmbedAssembliesIntoApk>true</EmbedAssembliesIntoApk>
-    <AndroidEnableMultiDex>false</AndroidEnableMultiDex>
+    <AndroidEnableMultiDex>true</AndroidEnableMultiDex>
     <AndroidCreatePackagePerAbi>false</AndroidCreatePackagePerAbi>
-    <!-- 保守配置避免构建错误 -->
+    <!-- 强制禁用所有R8/ProGuard优化 -->
     <DebugSymbols>false</DebugSymbols>
     <DebugType>none</DebugType>
-    <AndroidLinkTool>r8</AndroidLinkTool>
-    <AndroidEnableProguard>true</AndroidEnableProguard>
+    <AndroidLinkTool>d8</AndroidLinkTool>
+    <AndroidEnableProguard>false</AndroidEnableProguard>
+    <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
+    <Optimize>false</Optimize>
+    <AndroidEnableAssemblyCompression>false</AndroidEnableAssemblyCompression>
+    <!-- 禁用所有可能导致问题的特性 -->
+    <AndroidR8IgnoreWarnings>true</AndroidR8IgnoreWarnings>
+    <AndroidStripILAfterAOT>false</AndroidStripILAfterAOT>
+    <AndroidEnablePreloadAssemblies>false</AndroidEnablePreloadAssemblies>
+    <AndroidUseLatestPlatformSdk>false</AndroidUseLatestPlatformSdk>
+    <AndroidManifestMergerExtraArgs>--log WARNING</AndroidManifestMergerExtraArgs>
+    <ProguardConfigurationFiles></ProguardConfigurationFiles>
+    <!-- <AndroidFastDeploymentType>Assemblies</AndroidFastDeploymentType> -->
     <!-- Android签名配置已移除，发布时需要手动配置 -->
     <!-- <AndroidKeyStore>true</AndroidKeyStore> -->
     <!-- <AndroidSigningKeyStore>keystore.jks</AndroidSigningKeyStore> -->

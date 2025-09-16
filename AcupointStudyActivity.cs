@@ -20,8 +20,10 @@ namespace AcupointQuizMaster
         
         // UI控件
         private TextView? _titleText;
-        private Spinner? _meridianSpinner;
-        private Spinner? _acupointSpinner;
+        private SeekBar? _meridianSeekBar;
+        private TextView? _meridianLabel;
+        private SeekBar? _acupointSeekBar;
+        private TextView? _acupointLabel;
         private TextView? _acupointDetailText;
         private Button? _backButton;
         
@@ -57,19 +59,50 @@ namespace AcupointQuizMaster
         private void InitializeUI()
         {
             _titleText = FindViewById<TextView>(Resource.Id.titleText);
-            _meridianSpinner = FindViewById<Spinner>(Resource.Id.meridianSpinner);
-            _acupointSpinner = FindViewById<Spinner>(Resource.Id.acupointSpinner);
+            _meridianSeekBar = FindViewById<SeekBar>(Resource.Id.meridianSeekBar);
+            _meridianLabel = FindViewById<TextView>(Resource.Id.meridianLabel);
+            _acupointSeekBar = FindViewById<SeekBar>(Resource.Id.acupointSeekBar);
+            _acupointLabel = FindViewById<TextView>(Resource.Id.acupointLabel);
             _acupointDetailText = FindViewById<TextView>(Resource.Id.acupointDetailText);
             _backButton = FindViewById<Button>(Resource.Id.backButton);
 
-            if (_meridianSpinner != null) 
+            if (_meridianSeekBar != null) 
             {
-                _meridianSpinner.ItemSelected += OnMeridianSelected;
+                _meridianSeekBar.ProgressChanged += OnMeridianSeekBarChanged;
             }
             
-            if (_acupointSpinner != null) 
+            if (_acupointSeekBar != null) 
             {
-                _acupointSpinner.ItemSelected += OnAcupointSelected;
+                _acupointSeekBar.ProgressChanged += OnAcupointSeekBarChanged;
+            }
+            
+            // 添加点击事件处理
+            if (_meridianLabel != null) 
+            {
+                _meridianLabel.Click += OnMeridianLabelClick;
+                // 设置无障碍代理
+                var meridianDelegate = new AdjustableViewAccessibilityDelegate(
+                    _meridianLabel,
+                    () => IncrementMeridian(),
+                    () => DecrementMeridian(),
+                    () => _meridianLabel.Text ?? "",
+                    "经络选择"
+                );
+                _meridianLabel.SetAccessibilityDelegate(meridianDelegate);
+            }
+            
+            if (_acupointLabel != null) 
+            {
+                _acupointLabel.Click += OnAcupointLabelClick;
+                // 设置无障碍代理
+                var acupointDelegate = new AdjustableViewAccessibilityDelegate(
+                    _acupointLabel,
+                    () => IncrementAcupoint(),
+                    () => DecrementAcupoint(),
+                    () => _acupointLabel.Text ?? "",
+                    "穴位选择"
+                );
+                _acupointLabel.SetAccessibilityDelegate(acupointDelegate);
             }
             
             if (_backButton != null) _backButton.Click += OnBackClick;
@@ -109,7 +142,7 @@ namespace AcupointQuizMaster
                 }
 
                 // 设置经络选择器
-                SetupMeridianSpinner();
+                SetupMeridianSeekBar();
                 
             }
             catch (SystemException ex)
@@ -118,26 +151,58 @@ namespace AcupointQuizMaster
             }
         }
 
-        private void SetupMeridianSpinner()
+        private void SetupMeridianSeekBar()
         {
-            if (_meridianSpinner == null) return;
+            if (_meridianSeekBar == null || _meridianLabel == null) return;
 
-            var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, _meridianNames);
-            adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
-            _meridianSpinner.Adapter = adapter;
+            if (_meridianNames.Count == 0)
+            {
+                _meridianSeekBar.Max = 0;
+                _meridianSeekBar.Progress = 0;
+                _meridianSeekBar.Enabled = false;
+                _meridianLabel.Text = "(无题库)";
+                _meridianLabel.ContentDescription = "经络选择，暂无可用题库";
+                return;
+            }
+
+            _meridianSeekBar.Max = _meridianNames.Count - 1;
+            _meridianSeekBar.Progress = 0;
+            _meridianSeekBar.Enabled = true;
+            
+            _meridianLabel.Text = _meridianNames[0];
+            _meridianLabel.ContentDescription = $"经络选择，当前选择: {_meridianNames[0]}，共{_meridianNames.Count}个选项";
+            
+            // 自动触发第一个经络的选择，这样会自动加载第一个穴位并显示详情
+            _selectedBank = _availableBanks[0];
+            UpdateAcupointSeekBar();
+            
+            // 如果有穴位，自动显示第一个穴位的详情
+            if (_acupointNames.Count > 0 && _selectedBank != null)
+            {
+                var firstAcupointName = _acupointNames[0];
+                if (_selectedBank.AcupointDetails.TryGetValue(firstAcupointName, out var acupointInfo))
+                {
+                    ShowAcupointDetails(firstAcupointName, acupointInfo);
+                }
+            }
         }
 
-        private void OnMeridianSelected(object? sender, AdapterView.ItemSelectedEventArgs e)
+        private void OnMeridianSeekBarChanged(object? sender, SeekBar.ProgressChangedEventArgs e)
         {
             try
             {
-                if (e.Position < 0 || e.Position >= _availableBanks.Count) return;
+                if (!e.FromUser || e.Progress < 0 || e.Progress >= _availableBanks.Count) return;
 
-                _selectedBank = _availableBanks[e.Position];
+                _selectedBank = _availableBanks[e.Progress];
                 
+                if (_meridianLabel != null)
+                {
+                    _meridianLabel.Text = _meridianNames[e.Progress];
+                    _meridianLabel.ContentDescription = $"经络选择，当前选择: {_meridianNames[e.Progress]}，第{e.Progress + 1}个，共{_meridianNames.Count}个选项";
+                }
                 
                 // 更新穴位选择器
-                UpdateAcupointSpinner();
+                UpdateAcupointSeekBar();
                 
                 // 清空详情显示
                 _acupointDetailText?.SetText("请选择要学习的穴位", TextView.BufferType.Normal);
@@ -148,27 +213,44 @@ namespace AcupointQuizMaster
             }
         }
 
-        private void UpdateAcupointSpinner()
+        private void UpdateAcupointSeekBar()
         {
-            if (_acupointSpinner == null || _selectedBank == null) return;
+            if (_acupointSeekBar == null || _acupointLabel == null || _selectedBank == null) return;
 
             _acupointNames.Clear();
             _acupointNames.AddRange(_selectedBank.AcupointNames);
 
-            var adapter = new ArrayAdapter<string>(this, Android.Resource.Layout.SimpleSpinnerItem, _acupointNames);
-            adapter.SetDropDownViewResource(Android.Resource.Layout.SimpleSpinnerDropDownItem);
-            _acupointSpinner.Adapter = adapter;
+            if (_acupointNames.Count == 0)
+            {
+                _acupointSeekBar.Max = 0;
+                _acupointSeekBar.Progress = 0;
+                _acupointSeekBar.Enabled = false;
+                _acupointLabel.Text = "(该经络无穴位)";
+                _acupointLabel.ContentDescription = "穴位选择，该经络暂无穴位信息";
+                return;
+            }
+
+            _acupointSeekBar.Max = _acupointNames.Count - 1;
+            _acupointSeekBar.Progress = 0;
+            _acupointSeekBar.Enabled = true;
             
+            _acupointLabel.Text = _acupointNames[0];
+            _acupointLabel.ContentDescription = $"穴位选择，当前选择: {_acupointNames[0]}，共{_acupointNames.Count}个选项";
         }
 
-        private void OnAcupointSelected(object? sender, AdapterView.ItemSelectedEventArgs e)
+        private void OnAcupointSeekBarChanged(object? sender, SeekBar.ProgressChangedEventArgs e)
         {
             try
             {
-                if (e.Position < 0 || e.Position >= _acupointNames.Count || _selectedBank == null) return;
+                if (!e.FromUser || e.Progress < 0 || e.Progress >= _acupointNames.Count || _selectedBank == null) return;
 
-                var selectedAcupointName = _acupointNames[e.Position];
+                var selectedAcupointName = _acupointNames[e.Progress];
                 
+                if (_acupointLabel != null)
+                {
+                    _acupointLabel.Text = selectedAcupointName;
+                    _acupointLabel.ContentDescription = $"穴位选择，当前选择: {selectedAcupointName}，第{e.Progress + 1}个，共{_acupointNames.Count}个选项";
+                }
                 
                 if (_selectedBank.AcupointDetails.TryGetValue(selectedAcupointName, out var acupointInfo))
                 {
@@ -229,6 +311,154 @@ namespace AcupointQuizMaster
         private void OnBackClick(object? sender, EventArgs e)
         {
             Finish();
+        }
+
+        // 经络点击弹出选择对话框
+        private void OnMeridianLabelClick(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (_meridianNames.Count == 0) return;
+
+                ShowMeridianSelectionDialog();
+            }
+            catch (SystemException ex)
+            {
+                ShowError("选择经络失败", ex.Message);
+            }
+        }
+
+        // 穴位点击弹出选择对话框
+        private void OnAcupointLabelClick(object? sender, EventArgs e)
+        {
+            try
+            {
+                if (_acupointNames.Count == 0) return;
+
+                ShowAcupointSelectionDialog();
+            }
+            catch (SystemException ex)
+            {
+                ShowError("选择穴位失败", ex.Message);
+            }
+        }
+
+        // 经络选择对话框
+        private void ShowMeridianSelectionDialog()
+        {
+            if (_meridianNames.Count == 0) return;
+
+            var builder = new AlertDialog.Builder(this);
+            builder.SetTitle("选择经络");
+            
+            var currentIndex = _meridianSeekBar?.Progress ?? 0;
+            
+            builder.SetSingleChoiceItems(_meridianNames.ToArray(), currentIndex, (sender, e) =>
+            {
+                // 更新SeekBar进度
+                if (_meridianSeekBar != null)
+                {
+                    _meridianSeekBar.Progress = e.Which;
+                }
+                
+                // 触发SeekBar的ProgressChanged事件来更新UI
+                OnMeridianSeekBarChanged(_meridianSeekBar, new SeekBar.ProgressChangedEventArgs(_meridianSeekBar, e.Which, true));
+                
+                // 关闭对话框
+                ((AlertDialog)sender!).Dismiss();
+            });
+            
+            builder.SetNegativeButton("取消", (sender, e) => { });
+            builder.Show();
+        }
+
+        // 穴位选择对话框
+        private void ShowAcupointSelectionDialog()
+        {
+            if (_acupointNames.Count == 0) return;
+
+            var builder = new AlertDialog.Builder(this);
+            builder.SetTitle("选择穴位");
+            
+            var currentIndex = _acupointSeekBar?.Progress ?? 0;
+            
+            builder.SetSingleChoiceItems(_acupointNames.ToArray(), currentIndex, (sender, e) =>
+            {
+                // 更新SeekBar进度
+                if (_acupointSeekBar != null)
+                {
+                    _acupointSeekBar.Progress = e.Which;
+                }
+                
+                // 触发SeekBar的ProgressChanged事件来更新UI
+                OnAcupointSeekBarChanged(_acupointSeekBar, new SeekBar.ProgressChangedEventArgs(_acupointSeekBar, e.Which, true));
+                
+                // 关闭对话框
+                ((AlertDialog)sender!).Dismiss();
+            });
+            
+            builder.SetNegativeButton("取消", (sender, e) => { });
+            builder.Show();
+        }
+
+        // 经络递增方法
+        private bool IncrementMeridian()
+        {
+            if (_meridianSeekBar == null || _meridianNames.Count == 0) return false;
+            
+            var currentProgress = _meridianSeekBar.Progress;
+            if (currentProgress < _meridianNames.Count - 1)
+            {
+                _meridianSeekBar.Progress = currentProgress + 1;
+                OnMeridianSeekBarChanged(_meridianSeekBar, new SeekBar.ProgressChangedEventArgs(_meridianSeekBar, currentProgress + 1, true));
+                return true;
+            }
+            return false;
+        }
+
+        // 经络递减方法
+        private bool DecrementMeridian()
+        {
+            if (_meridianSeekBar == null || _meridianNames.Count == 0) return false;
+            
+            var currentProgress = _meridianSeekBar.Progress;
+            if (currentProgress > 0)
+            {
+                _meridianSeekBar.Progress = currentProgress - 1;
+                OnMeridianSeekBarChanged(_meridianSeekBar, new SeekBar.ProgressChangedEventArgs(_meridianSeekBar, currentProgress - 1, true));
+                return true;
+            }
+            return false;
+        }
+
+        // 穴位递增方法
+        private bool IncrementAcupoint()
+        {
+            if (_acupointSeekBar == null || _acupointNames.Count == 0) return false;
+            
+            var currentProgress = _acupointSeekBar.Progress;
+            if (currentProgress < _acupointNames.Count - 1)
+            {
+                _acupointSeekBar.Progress = currentProgress + 1;
+                OnAcupointSeekBarChanged(_acupointSeekBar, new SeekBar.ProgressChangedEventArgs(_acupointSeekBar, currentProgress + 1, true));
+                return true;
+            }
+            return false;
+        }
+
+        // 穴位递减方法
+        private bool DecrementAcupoint()
+        {
+            if (_acupointSeekBar == null || _acupointNames.Count == 0) return false;
+            
+            var currentProgress = _acupointSeekBar.Progress;
+            if (currentProgress > 0)
+            {
+                _acupointSeekBar.Progress = currentProgress - 1;
+                OnAcupointSeekBarChanged(_acupointSeekBar, new SeekBar.ProgressChangedEventArgs(_acupointSeekBar, currentProgress - 1, true));
+                return true;
+            }
+            return false;
         }
 
 

@@ -32,6 +32,108 @@
             android:background="#F5F5F5"
             android:layout_marginBottom="32dp" />
 
+        <!-- 抽穴位配置区域 (初始隐藏) -->
+        <LinearLayout
+            android:id="@+id/quizConfigLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="#F5F5F5"
+            android:padding="16dp"
+            android:layout_marginBottom="24dp"
+            android:visibility="gone">
+
+            <!-- 题库选择区域 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="选择题库 (点击或滑动选择)"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp"
+                    android:textColor="#666666" />
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/bankSelectionLabel"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:text="(请等待加载)"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:gravity="center"
+                        android:background="#FFFFFF"
+                        android:textColor="#2196F3"
+                        android:elevation="2dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:importantForAccessibility="yes" />
+
+                    <SeekBar
+                        android:id="@+id/bankSelectionSeekBar"
+                        android:layout_width="match_parent"
+                        android:layout_height="60dp"
+                        android:progressDrawable="@android:color/transparent"
+                        android:thumb="@android:color/transparent"
+                        android:background="@android:color/transparent"
+                        android:importantForAccessibility="no" />
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+            <!-- 数量输入区域 -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="抽取数量："
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:textColor="#666666"
+                    android:layout_marginEnd="8dp" />
+
+                <EditText
+                    android:id="@+id/quantityEditText"
+                    android:layout_width="120dp"
+                    android:layout_height="48dp"
+                    android:inputType="number"
+                    android:hint="输入数量"
+                    android:textSize="16sp"
+                    android:gravity="center"
+                    android:background="#FFFFFF"
+                    android:elevation="1dp"
+                    android:layout_marginEnd="16dp" />
+
+                <Button
+                    android:id="@+id/startQuizButton"
+                    android:layout_width="0dp"
+                    android:layout_height="48dp"
+                    android:layout_weight="1"
+                    android:text="开始抽穴位"
+                    android:textSize="16sp"
+                    android:backgroundTint="#4CAF50"
+                    android:textColor="@android:color/white" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
         <LinearLayout
             android:id="@+id/currentItemLayout"
             android:layout_width="match_parent"
@@ -136,17 +238,6 @@
                 android:gravity="center"
                 android:layout_marginTop="16dp"
                 android:visibility="gone">
-
-                <Button
-                    android:id="@+id/startButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="开始抽取"
-                    android:layout_margin="4dp"
-                    android:backgroundTint="#4CAF50"
-                    android:textColor="@android:color/white"
-                    android:enabled="false" />
 
                 <Button
                     android:id="@+id/correctButton"

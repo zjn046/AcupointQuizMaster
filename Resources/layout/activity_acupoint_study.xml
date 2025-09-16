@@ -33,19 +33,42 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="选择经络"
-                android:textSize="18sp"
+                android:text="选择经络 (点击或滑动选择)"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="16dp"
-                android:textColor="#333333" />
+                android:layout_marginBottom="8dp"
+                android:textColor="#666666" />
 
-            <Spinner
-                android:id="@+id/meridianSpinner"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:drawable/btn_dropdown"
-                android:padding="12dp"
-                android:textSize="16sp" />
+                android:layout_height="60dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/meridianLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="(请等待加载)"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#FFFFFF"
+                    android:textColor="#2196F3"
+                    android:elevation="2dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:importantForAccessibility="yes" />
+
+                <SeekBar
+                    android:id="@+id/meridianSeekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:progressDrawable="@android:color/transparent"
+                    android:thumb="@android:color/transparent"
+                    android:background="@android:color/transparent"
+                    android:importantForAccessibility="no" />
+
+            </RelativeLayout>
 
         </LinearLayout>
 
@@ -61,19 +84,42 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="选择穴位"
-                android:textSize="18sp"
+                android:text="选择穴位 (点击或滑动选择)"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="16dp"
-                android:textColor="#333333" />
+                android:layout_marginBottom="8dp"
+                android:textColor="#666666" />
 
-            <Spinner
-                android:id="@+id/acupointSpinner"
+            <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:drawable/btn_dropdown"
-                android:padding="12dp"
-                android:textSize="16sp" />
+                android:layout_height="60dp"
+                android:layout_marginBottom="8dp">
+
+                <TextView
+                    android:id="@+id/acupointLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:text="(请先选择经络)"
+                    android:textSize="20sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:background="#FFFFFF"
+                    android:textColor="#4CAF50"
+                    android:elevation="2dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:importantForAccessibility="yes" />
+
+                <SeekBar
+                    android:id="@+id/acupointSeekBar"
+                    android:layout_width="match_parent"
+                    android:layout_height="60dp"
+                    android:progressDrawable="@android:color/transparent"
+                    android:thumb="@android:color/transparent"
+                    android:background="@android:color/transparent"
+                    android:importantForAccessibility="no" />
+
+            </RelativeLayout>
 
         </LinearLayout>
 

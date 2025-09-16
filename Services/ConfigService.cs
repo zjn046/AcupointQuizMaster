@@ -28,7 +28,13 @@ namespace AcupointQuizMaster.Services
 
     public class ConfigService
     {
-        private static readonly HttpClient _httpClient = new HttpClient();
+        private static readonly HttpClient _httpClient;
+        
+        static ConfigService()
+        {
+            _httpClient = new HttpClient();
+            _httpClient.Timeout = TimeSpan.FromSeconds(30);
+        }
         
         public static readonly ApiPlatform[] AvailablePlatforms = new[]
         {

@@ -64,7 +64,7 @@ namespace AcupointQuizMaster.Services
 
         public BankParsingService(Context context)
         {
-            _context = context;
+            _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
         /// <summary>
